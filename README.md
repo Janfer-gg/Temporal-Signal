@@ -1,1 +1,1 @@
-shiny::runGitHub("Temporal Signal", "janfer-gg")
+shiny::runGitHub("Temporal-Signal", "janfer-gg")
