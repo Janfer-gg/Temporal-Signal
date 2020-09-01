@@ -131,8 +131,8 @@ KO_region_image1 <- function(Gene,allinfo) {
       p2 <-
         p2 + annotate(
           "rect",
-          xmin = KO_region3[a, ]$start - 300,
-          xmax = KO_region3[a, ]$end + 300,
+          xmin = KO_region3[a, ]$start - 400,
+          xmax = KO_region3[a, ]$end + 400,
           ymin = min(transcript.pos$y) - 0.7,
           ymax = 0,
           alpha = .0,
@@ -143,8 +143,8 @@ KO_region_image1 <- function(Gene,allinfo) {
       p2 <-
         p2 + annotate(
           "rect",
-          xmin = KO_region[t, ]$start - 300,
-          xmax = KO_region[t, ]$end + 300,
+          xmin = KO_region[t, ]$start - 400,
+          xmax = KO_region[t, ]$end + 400,
           ymin = min(transcript.pos$y) - 0.7,
           ymax = 0,
           alpha = .0,

@@ -1,6 +1,6 @@
-setwd("C://Users//41518//Desktop//work/ubigene")
+setwd("C://Users//41518//Desktop//work/ubigene2")
 #创建文件夹
-filepath<-"C://Users//41518//Desktop//A1bg"
+filepath<-"C://Users//41518//Desktop//SMAD4"
 dir.create(filepath)
 library(ggplot2)
 library(ggimage)
@@ -44,7 +44,7 @@ source_python("crispr_get_score.py")
 source_python("crispor_table_download.py")
 
 
-term <- ("Sirt5")
+term <- ("SMAD4")
 species<-"Human"
 ID <- Get_ID(term,species)
 
@@ -60,9 +60,9 @@ transcript.table <- read.csv("transcript.csv",header = TRUE)
 #如果要敲除的基因与其他基因有重叠
 othergene<-Get_othergene(species,allinfo$seq_region_name,allinfo$start,allinfo$end)
 othergene.table<-othergene[which(othergene$gene_id!=ID),]
+avoid_region<-data.frame()
+mark_region<-data.frame()
 if(nrow(othergene.table)!=0){
-  avoid_region<-data.frame()
-  mark_region<-data.frame()
   avoid_region<-Get_avoid_region(othergene.table)
   mark_region<-Get_mark_region(othergene.table)
 }
@@ -178,6 +178,8 @@ for (j in 1:length(allinfo$Transcript)) {
 }
 t_Exon_CDS <-
   ko.data[which(ko.data$transcript == transcript.name),]
+ATG_Exon<-t_Exon_CDS[1,]$Exon
+stop_Exon<-t_Exon_CDS[nrow(t_Exon_CDS),]$Exon
 #计算覆盖情况
 ko.data <-
   transform(ko.data, times = numeric(length(ko.data$transcript)))
@@ -213,13 +215,29 @@ for (q in 1:length(CDS_length)) {
   }
 }
 {
-  if (q == 1) {
-    t_CDS_20 <- KO_region_20[q, ]$start +  CDS_length_20
+  if (Gene_rev) {
+    {
+      if (q == 1) {
+        t_CDS_20 <- KO_region_20[q, ]$end -  CDS_length_20
+      }
+      else{
+        t_CDS_20 <- KO_region_20[q, ]$end -  CDS_length_20 + sum(CDS_length[1:(q - 1)])
+      }
+    }
+    
   }
   else{
-    t_CDS_20 <- KO_region_20[q, ]$start +  CDS_length_20 - sum(CDS_length[1:(q - 1)])
+    {
+      if (q == 1) {
+        t_CDS_20 <- KO_region_20[q, ]$start +  CDS_length_20
+      }
+      else{
+        t_CDS_20 <- KO_region_20[q, ]$start +  CDS_length_20 - sum(CDS_length[1:(q - 1)])
+      }
+    }
   }
 }
+
 KO_region_20 <- KO_region_20[1:q,]
 
 #在前20%的起始密码子
@@ -475,12 +493,16 @@ for(t in 1:nrow(KO_region_20)){
     }
   }
   
-  ########
-  gRNA.table<-gRNA.table[which(gRNA.table$end<t_CDS_20),]
+  if(Gene_rev){
+    gRNA.table<-gRNA.table[which(gRNA.table$start>t_CDS_20),]
+  }
+  else{
+    gRNA.table<-gRNA.table[which(gRNA.table$end<t_CDS_20),]
+  }
   
-  #选前20条
-  if (nrow(gRNA.table) > 30) {
-    gRNA.table <- gRNA.table[1:30,]
+  #选前40条
+  if (nrow(gRNA.table) > 40) {
+    gRNA.table <- gRNA.table[1:40,]
   }
   
   #符合条件的gRNA进行切割效率预测
@@ -511,7 +533,8 @@ for(t in 1:nrow(KO_region_20)){
       break
     }
   }
-  
+  #排除完全重叠的情况
+  gRNA.table<-gRNA.table[!duplicated(gRNA.table$end),]
   {
     #如果有超过2条gRNA,直接取前2条，结束程序
     if (nrow(gRNA.table) >= 2) {
@@ -571,12 +594,13 @@ if(nrow(gRNA)!=0){
   if (nrow(gRNA) != 0) {
     for (j in 1:length(allinfo$Transcript)) {
       if (allinfo$Transcript[[j]]$display_name == transcript.name) {
+        start<-allinfo$start
         transcript.start <- allinfo$Transcript[[j]]$start
         transcript.end <-
           allinfo$Transcript[[j]]$end - transcript.start + 1
         
         y <- 0.5
-        f <- data.frame(x = c(1:transcript.end), y = y)
+        f <- data.frame(x = c(1:nchar(Gene)), y = y)
         p1 <-
           ggplot(data = f, aes(x = x, y = y)) + geom_path(color = "#bdc4ca", size = 2) + theme_bw() +
           theme(panel.grid = element_blank(), panel.border = element_blank()) +
@@ -674,8 +698,8 @@ if(nrow(gRNA)!=0){
     
     # 敲除区域放大图 -----------------------------------------------------------------
     ff <-data.frame(x = gRNA[1, ]$start, y = 0.59)
-    large_start <- min(gRNA$start)-200
-    large_end <- max(gRNA$end)+200
+    large_start <- min(gRNA$start)-1000
+    large_end <- max(gRNA$end)+1000
     y <- 0.5
     f <- data.frame(x = c(large_start:large_end), y = y)
     p1_large <-
@@ -724,14 +748,14 @@ if(nrow(gRNA)!=0){
   }
   
   else{
-    write.table("方案设计失败","result.txt",row.names = FALSE,col.names = FALSE)
-    print("小片段方案设计失败")
+    write.table("方案设计失败","result2.txt",row.names = FALSE,col.names = FALSE)
+    print("移码方案设计失败")
   }
 }
 
 # 输出 ----------------------------------------------------------------------
 if (nrow(gRNA) != 0) {
-  output <- data.frame(Gene=character(),gRNA1=character(),strand1=character(),score1=numeric(),score2=numeric(),gRNA2=character(),strand2=character(),score2_1=numeric(),score2_2=numeric(),incomplete.transcript=character(),transcript=character(),Exon_count=numeric(),start_condon=character(),stop_condon=character(),ko_condon=character(),Not_KO_transcript=character())
+  output <- data.frame(Gene=character(),gRNA1=character(),strand1=character(),score1=numeric(),score2=numeric(),gRNA2=character(),strand2=character(),score2_1=numeric(),score2_2=numeric(),incomplete_ranscript=character(),transcript=character(),Exon_count=numeric(),start_condon=character(),stop_condon=character(),ko_condon=character(),Not_KO_transcript=character())
   output[1, 1] <- term
   output[1, 2] <- gRNA[1,]$analysis_seq
   output[1, 3] <- gRNA[1,]$strand

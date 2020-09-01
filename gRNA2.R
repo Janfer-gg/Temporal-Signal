@@ -1,5 +1,5 @@
 #换区域找第二对gRNA
-Get_gRNA2 <- function() {
+Get_gRNA2 <- function(KO_region) {
   if (nrow(KO_region) > t) {
     for (h in (t + 1):nrow(KO_region)) {
       # 设计在起始密码子后面 -----------------------------------------------------------------
@@ -14,6 +14,7 @@ Get_gRNA2 <- function() {
             ko_seq <- as.character(seq_rev)
           }
           #读取ko_seq的gRNA表格
+          source_python("crispor_table_download.py")
           py$run(ko_seq,species)
           gRNA.table <-
             read.csv("gRNA.csv",
@@ -200,6 +201,7 @@ Get_gRNA2 <- function() {
             ko_seq1 <- as.character(seq1_rev)
           }
           #读取ko_seq的gRNA表格
+          source_python("crispor_table_download.py")
           py$run(ko_seq1,species)
           gRNA.table1 <-
             read.csv("gRNA.csv",
@@ -253,6 +255,7 @@ Get_gRNA2 <- function() {
             ko_seq2 <- as.character(seq2_rev)
           }
           #读取ko_seq的gRNA表格
+          source_python("crispor_table_download.py")
           py$run(ko_seq2,species)
           gRNA.table2 <-
             read.csv("gRNA.csv",
@@ -458,6 +461,7 @@ Get_gRNA2 <- function() {
             ko_seq <- as.character(seq_rev)
           }
           #读取ko_seq的gRNA表格
+          source_python("crispor_table_download.py")
           py$run(ko_seq,species)
           gRNA.table <-
             read.csv("gRNA.csv",
@@ -652,6 +656,7 @@ Get_gRNA2 <- function() {
             ko_seq1 <- as.character(seq1_rev)
           }
           #读取ko_seq的gRNA表格
+          source_python("crispor_table_download.py")
           py$run(ko_seq1, species)
           gRNA.table1 <-
             read.csv("gRNA.csv", header = FALSE, encoding = "UTF-8")
@@ -698,6 +703,7 @@ Get_gRNA2 <- function() {
             ko_seq2 <- as.character(seq2_rev)
           }
           #读取ko_seq的gRNA表格
+          source_python("crispor_table_download.py")
           py$run(ko_seq2, species)
           gRNA.table2 <-
             read.csv("gRNA.csv", header = FALSE, encoding = "UTF-8")
@@ -881,409 +887,333 @@ Get_gRNA2 <- function() {
         }
       }
     }
+  }
     
     
     # 整个敲除 --------------------------------------------------------------------
-    if (exists("gRNA2") == FALSE) {
-      if (exists("KO_region2") == FALSE) {
-        KO_region2 <- KO_longregion(t_Exon_CDS)
-        if (nrow(KO_region2) != 0) {
-          #外显子上游
-          ko_start1 <- KO_region2$start - 400
-          ko_end1 <- KO_region2$start
-          if (ko_start1 < 0) {
-            KO_region2$start <- min(t_Exon_CDS$start)
+  if (exists("gRNA2") == FALSE) {
+    if (exists("KO_region2") == FALSE) {
+      KO_region2 <- KO_longregion(t_Exon_CDS)
+      if (nrow(KO_region2) != 0) {
+        #外显子上游
+        ko_start1 <- KO_region2$start - 400
+        ko_end1 <- KO_region2$start
+        if (ko_start1 < 0) {
+          KO_region2$start <- min(t_Exon_CDS$start)
+        }
+        ko_start1 <- KO_region2$start - 400
+        ko_end1 <- KO_region2$start
+        ko_seq1 <- substring(Gene, ko_start1, ko_end1)
+        if (Gene_rev) {
+          seq1 <- DNAString(ko_seq1)
+          seq1_rev <- reverse(seq1)
+          ko_seq1 <- as.character(seq1_rev)
+        }
+        #读取ko_seq的gRNA表格
+        source_python("crispor_table_download.py")
+        py$run(ko_seq1, species)
+        gRNA.table1 <-
+          read.csv("gRNA.csv", header = FALSE, encoding = "UTF-8")
+        #特异性得分70下，和Inefficient的gRNA排除掉
+        gRNA.del <- numeric()
+        for (i in 1:length(gRNA.table1[, 1])) {
+          if (gRNA.table1[i, 3] < 70) {
+            gRNA.del <- append(gRNA.del, i)
           }
-          ko_start1 <- KO_region2$start - 400
-          ko_end1 <- KO_region2$start
-          ko_seq1 <- substring(Gene, ko_start1, ko_end1)
+          if (gRNA.table1[i, 3] == "No matches") {
+            gRNA.del <- append(gRNA.del, i)
+          }
+          else if (grepl("Inefficient", gRNA.table1[i, 2])) {
+            gRNA.del <- append(gRNA.del, i)
+          }
+        }
+        gRNA.table1 <- gRNA.table1[-gRNA.del, ]
+        if (nrow(gRNA.table1) == 0) {
+          next
+        }
+        #0-0-0(优化)
+        count_0 <- numeric()
+        for (p in 1:nrow(gRNA.table1)) {
+          target <-
+            str_extract_all(gRNA.table1[p,]$V9,
+                            "\\d+\\s\\-\\s\\d+\\s\\-\\s\\d+")[[1]][2]
+          target <- gsub("\\s", "", target)
+          if (target == "0-0-0") {
+            count_0 <- append(count_0, p)
+          }
+        }
+        gRNA.table_min <- gRNA.table1[-count_0,]
+        gRNA.table1 <-
+          rbind(gRNA.table1[count_0,], gRNA.table_min)
+        
+        if (nrow(gRNA.table1) > 6) {
+          gRNA.table1 <- gRNA.table1[1:6,]
+        }
+        
+        #外显子下游
+        ko_start2 <- KO_region2$end
+        ko_end2 <- KO_region2$end + 400
+        if (ko_end2 > nchar(Gene)) {
+          KO_region2$end <- max(t_Exon_CDS$end)
+        }
+        ko_start2 <- KO_region2$end
+        ko_end2 <- KO_region2$end + 400
+        ko_seq2 <- substring(Gene, ko_start2, ko_end2)
+        if (Gene_rev) {
+          seq2 <- DNAString(ko_seq2)
+          seq2_rev <- reverse(seq2)
+          ko_seq2 <- as.character(seq2_rev)
+        }
+        #读取ko_seq的gRNA表格
+        source_python("crispor_table_download.py")
+        py$run(ko_seq2, species)
+        gRNA.table2 <-
+          read.csv("gRNA.csv", header = FALSE, encoding = "UTF-8")
+        #特异性得分70下，和Inefficient的gRNA排除掉
+        gRNA.del <- numeric()
+        for (i in 1:length(gRNA.table2[, 1])) {
+          if (gRNA.table2[i, 3] < 70) {
+            gRNA.del <- append(gRNA.del, i)
+          }
+          if (gRNA.table2[i, 3] == "No matches") {
+            gRNA.del <- append(gRNA.del, i)
+          }
+          else if (grepl("Inefficient", gRNA.table2[i, 2])) {
+            gRNA.del <- append(gRNA.del, i)
+          }
+        }
+        gRNA.table2 <- gRNA.table2[-gRNA.del, ]
+        if (nrow(gRNA.table2) == 0) {
+          next
+        }
+        #0-0-0(优化)
+        count_0 <- numeric()
+        for (p in 1:nrow(gRNA.table2)) {
+          target <-
+            str_extract_all(gRNA.table2[p,]$V9,
+                            "\\d+\\s\\-\\s\\d+\\s\\-\\s\\d+")[[1]][2]
+          target <- gsub("\\s", "", target)
+          if (target == "0-0-0") {
+            count_0 <- append(count_0, p)
+          }
+        }
+        gRNA.table_min <- gRNA.table2[-count_0,]
+        gRNA.table2 <-
+          rbind(gRNA.table2[count_0,], gRNA.table_min)
+        
+        if (nrow(gRNA.table2) > 6) {
+          gRNA.table2 <- gRNA.table2[1:6,]
+        }
+        if (nrow(gRNA.table1) == 0 | nrow(gRNA.table2) == 0) {
+          #筛选不到gRNA时要及时退出
+          break
+        }
+        
+        #上下游的gRNA合并
+        gRNA.table <- rbind(gRNA.table1, gRNA.table2)
+        #获取每个gRNA在基因上的位置
+        strand <- sub("[^a-zA-Z]+", "", gRNA.table[, 1])
+        gRNA_seq <- substring(gRNA.table[, 2], 1, 20)
+        Score1 <- gRNA.table[, 3]
+        analysis_seq <-
+          gsub(" ", "", substring(gRNA.table[, 2], 1, 24))
+        gRNA.table <-
+          cbind(strand, gRNA_seq, analysis_seq, Score1)
+        gRNA.table <- as.data.frame(gRNA.table)
+        gene <- DNAString(Gene)
+        {
           if (Gene_rev) {
-            seq1 <- DNAString(ko_seq1)
-            seq1_rev <- reverse(seq1)
-            ko_seq1 <- as.character(seq1_rev)
-          }
-          #读取ko_seq的gRNA表格
-          py$run(ko_seq1, species)
-          gRNA.table1 <-
-            read.csv("gRNA.csv", header = FALSE, encoding = "UTF-8")
-          #特异性得分70下，和Inefficient的gRNA排除掉
-          gRNA.del <- numeric()
-          for (i in 1:length(gRNA.table1[, 1])) {
-            if (gRNA.table1[i, 3] < 70) {
-              gRNA.del <- append(gRNA.del, i)
+            for (i in 1:length(gRNA.table[, 1])) {
+              if (gRNA.table[i,]$strand == "fw") {
+                gRNA_rev <- DNAString(gRNA.table[i,]$gRNA_seq)
+                gRNA_rev <- reverse(gRNA_rev)
+                rev <-
+                  matchPattern(pattern = gRNA_rev, subject = gene)
+                rev_start <- start(rev)
+                rev_end <- end(rev)
+                gRNA.table[i, 5] <- rev_start
+                gRNA.table[i, 6] <- rev_end
+              }
+              else if (gRNA.table[i,]$strand == "rev") {
+                gRNA_fw <- DNAString(gRNA.table[i,]$gRNA_seq)
+                gRNA_fw <- complement(gRNA_fw)
+                fw <-
+                  matchPattern(pattern = gRNA_fw, subject = gene)
+                fw_start <- start(fw)
+                fw_end <- end(fw)
+                gRNA.table[i, 5] <- fw_start
+                gRNA.table[i, 6] <- fw_end
+              }
             }
-            if (gRNA.table1[i, 3] == "No matches") {
-              gRNA.del <- append(gRNA.del, i)
-            }
-            else if (grepl("Inefficient", gRNA.table1[i, 2])) {
-              gRNA.del <- append(gRNA.del, i)
-            }
-          }
-          gRNA.table1 <- gRNA.table1[-gRNA.del,]
-          if (nrow(gRNA.table1) == 0) {
-            next
-          }
-          #0-0-0(优化)
-          count_0 <- numeric()
-          for (p in 1:nrow(gRNA.table1)) {
-            target <-
-              str_extract_all(gRNA.table1[p, ]$V9,
-                              "\\d+\\s\\-\\s\\d+\\s\\-\\s\\d+")[[1]][2]
-            target <- gsub("\\s", "", target)
-            if (target == "0-0-0") {
-              count_0 <- append(count_0, p)
-            }
-          }
-          gRNA.table_min <- gRNA.table1[-count_0, ]
-          gRNA.table1 <-
-            rbind(gRNA.table1[count_0, ], gRNA.table_min)
-          
-          if (nrow(gRNA.table1) > 6) {
-            gRNA.table1 <- gRNA.table1[1:6, ]
+            names(gRNA.table)[5:6] <- c("start", "end")
+            print(gRNA.table)
           }
           
-          #外显子下游
-          ko_start2 <- KO_region2$end
-          ko_end2 <- KO_region2$end + 400
-          if (ko_end2 > nchar(Gene)) {
-            KO_region2$end <- max(t_Exon_CDS$end)
-          }
-          ko_start2 <- KO_region2$end
-          ko_end2 <- KO_region2$end + 400
-          ko_seq2 <- substring(Gene, ko_start2, ko_end2)
-          if (Gene_rev) {
-            seq2 <- DNAString(ko_seq2)
-            seq2_rev <- reverse(seq2)
-            ko_seq2 <- as.character(seq2_rev)
-          }
-          #读取ko_seq的gRNA表格
-          py$run(ko_seq2, species)
-          gRNA.table2 <-
-            read.csv("gRNA.csv", header = FALSE, encoding = "UTF-8")
-          #特异性得分70下，和Inefficient的gRNA排除掉
-          gRNA.del <- numeric()
-          for (i in 1:length(gRNA.table2[, 1])) {
-            if (gRNA.table2[i, 3] < 70) {
-              gRNA.del <- append(gRNA.del, i)
+          else{
+            for (i in 8:length(gRNA.table[, 1])) {
+              if (gRNA.table[i, ]$strand == "rev") {
+                gRNA_rev <- DNAString(gRNA.table[i, ]$gRNA_seq)
+                gRNA_rev <- reverseComplement(gRNA_rev)
+                rev <-
+                  matchPattern(pattern = gRNA_rev, subject = gene)
+                rev_start <- start(rev)
+                rev_end <- end(rev)
+                gRNA.table[i, 5] <- rev_start[1]
+                gRNA.table[i, 6] <- rev_end[1]
+              }
+              else if (gRNA.table[i, ]$strand == "fw") {
+                fw <-
+                  matchPattern(pattern = gRNA.table[i, ]$gRNA_seq,
+                               subject = gene)
+                fw_start <- start(fw)
+                fw_end <- end(fw)
+                gRNA.table[i, 5] <- fw_start
+                gRNA.table[i, 6] <- fw_end
+              }
             }
-            if (gRNA.table2[i, 3] == "No matches") {
-              gRNA.del <- append(gRNA.del, i)
-            }
-            else if (grepl("Inefficient", gRNA.table2[i, 2])) {
-              gRNA.del <- append(gRNA.del, i)
-            }
+            names(gRNA.table)[5:6] <- c("start", "end")
+            print(gRNA.table)
           }
-          gRNA.table2 <- gRNA.table2[-gRNA.del,]
-          if (nrow(gRNA.table2) == 0) {
-            next
-          }
-          #0-0-0(优化)
-          count_0 <- numeric()
-          for (p in 1:nrow(gRNA.table2)) {
-            target <-
-              str_extract_all(gRNA.table2[p, ]$V9,
-                              "\\d+\\s\\-\\s\\d+\\s\\-\\s\\d+")[[1]][2]
-            target <- gsub("\\s", "", target)
-            if (target == "0-0-0") {
-              count_0 <- append(count_0, p)
+        }
+        
+        #局部GC含量大于80%或小于25%，避免该区域
+        GC_avoid_region <- GC_analysis2(KO_region2)
+        if (GC_avoid_region != FALSE) {
+          GC_del <- numeric()
+          for (i in 1:nrow(gRNA.table)) {
+            for (j in 1:nrow(GC_avoid_region)) {
+              if (gRNA.table[i,]$start %in% c(GC_avoid_region[j, 1]:GC_avoid_region[j, 2]) |
+                  gRNA.table[i,]$end %in% c(GC_avoid_region[j, 1]:GC_avoid_region[j, 2])) {
+                GC_del <- append(GC_del, i)
+              }
             }
           }
-          gRNA.table_min <- gRNA.table2[-count_0, ]
-          gRNA.table2 <-
-            rbind(gRNA.table2[count_0, ], gRNA.table_min)
-          
-          if (nrow(gRNA.table2) > 6) {
-            gRNA.table2 <- gRNA.table2[1:6, ]
+          if (length(GC_del) != 0) {
+            gRNA.table <- gRNA.table[-GC_del, ]
           }
+        }
+        
+        #符合条件的gRNA进行切割效率预测
+        write.csv(gRNA.table, file = "CCTOP-predictor.csv", row.names = FALSE)
+        source_python("crispr_get_score.py")
+        py$reader_writer("CCTOP-predictor.csv", species)
+        gRNA.table <-
+          read.csv("CCTOP-predictor.csv", header = TRUE)
+        
+        #切割效率得分低于0.60的删除
+        gRNA.table <-
+          gRNA.table[which(gRNA.table$crispr_score >= 0.60),]
+        
+        #上下游分开
+        gRNA.table1 <-
+          gRNA.table[which(gRNA.table$end <= KO_region2$start),]
+        gRNA.table2 <-
+          gRNA.table[which(gRNA.table$start >= KO_region2$end),]
+        
+        #切割得分大于0.65的优先
+        gRNA.table1 <-
+          rbind(gRNA.table1[which(gRNA.table1$crispr_score >= 0.65),], gRNA.table1[which(gRNA.table1$crispr_score <
+                                                                                           0.65),])
+        gRNA.table2 <-
+          rbind(gRNA.table2[which(gRNA.table2$crispr_score >= 0.65),], gRNA.table2[which(gRNA.table2$crispr_score <
+                                                                                           0.65),])
+        
+        #重新合并
+        gRNA.table <- rbind(gRNA.table1, gRNA.table2)
+        
+        #table1是外显子上游的gRNA,table2是外显子下游的gRNA
+        {
           if (nrow(gRNA.table1) == 0 | nrow(gRNA.table2) == 0) {
-            #筛选不到gRNA时要及时退出
-            break
+            next
           }
-          
-          #上下游的gRNA合并
-          gRNA.table <- rbind(gRNA.table1, gRNA.table2)
-          #获取每个gRNA在基因上的位置
-          strand <- sub("[^a-zA-Z]+", "", gRNA.table[, 1])
-          gRNA_seq <- substring(gRNA.table[, 2], 1, 20)
-          Score1 <- gRNA.table[, 3]
-          analysis_seq <-
-            gsub(" ", "", substring(gRNA.table[, 2], 1, 24))
-          gRNA.table <-
-            cbind(strand, gRNA_seq, analysis_seq, Score1)
-          gRNA.table <- as.data.frame(gRNA.table)
-          gene <- DNAString(Gene)
-          {
-            if (Gene_rev) {
-              for (i in 1:length(gRNA.table[, 1])) {
-                if (gRNA.table[i, ]$strand == "fw") {
-                  gRNA_rev <- DNAString(gRNA.table[i, ]$gRNA_seq)
-                  gRNA_rev <- reverse(gRNA_rev)
-                  rev <-
-                    matchPattern(pattern = gRNA_rev, subject = gene)
-                  rev_start <- start(rev)
-                  rev_end <- end(rev)
-                  gRNA.table[i, 5] <- rev_start
-                  gRNA.table[i, 6] <- rev_end
-                }
-                else if (gRNA.table[i, ]$strand == "rev") {
-                  gRNA_fw <- DNAString(gRNA.table[i, ]$gRNA_seq)
-                  gRNA_fw <- complement(gRNA_fw)
-                  fw <-
-                    matchPattern(pattern = gRNA_fw, subject = gene)
-                  fw_start <- start(fw)
-                  fw_end <- end(fw)
-                  gRNA.table[i, 5] <- fw_start
-                  gRNA.table[i, 6] <- fw_end
-                }
-              }
-              names(gRNA.table)[5:6] <- c("start", "end")
-              print(gRNA.table)
-            }
-            
-            else{
-              for (i in 8:length(gRNA.table[, 1])) {
-                if (gRNA.table[i,]$strand == "rev") {
-                  gRNA_rev <- DNAString(gRNA.table[i,]$gRNA_seq)
-                  gRNA_rev <- reverseComplement(gRNA_rev)
-                  rev <-
-                    matchPattern(pattern = gRNA_rev, subject = gene)
-                  rev_start <- start(rev)
-                  rev_end <- end(rev)
-                  gRNA.table[i, 5] <- rev_start[1]
-                  gRNA.table[i, 6] <- rev_end[1]
-                }
-                else if (gRNA.table[i,]$strand == "fw") {
-                  fw <-
-                    matchPattern(pattern = gRNA.table[i,]$gRNA_seq,
-                                 subject = gene)
-                  fw_start <- start(fw)
-                  fw_end <- end(fw)
-                  gRNA.table[i, 5] <- fw_start
-                  gRNA.table[i, 6] <- fw_end
-                }
-              }
-              names(gRNA.table)[5:6] <- c("start", "end")
-              print(gRNA.table)
-            }
+          else{
+            gRNA2 <- Get_result1(gRNA.table, KO_region2)        #相差0.05分以内优选
           }
-          
-          #局部GC含量大于80%或小于25%，避免该区域
-          GC_avoid_region <- GC_analysis2(KO_region2)
-          if (GC_avoid_region != FALSE) {
-            GC_del <- numeric()
-            for (i in 1:nrow(gRNA.table)) {
-              for (j in 1:nrow(GC_avoid_region)) {
-                if (gRNA.table[i, ]$start %in% c(GC_avoid_region[j, 1]:GC_avoid_region[j, 2]) |
-                    gRNA.table[i, ]$end %in% c(GC_avoid_region[j, 1]:GC_avoid_region[j, 2])) {
-                  GC_del <- append(GC_del, i)
-                }
-              }
-            }
-            if (length(GC_del) != 0) {
-              gRNA.table <- gRNA.table[-GC_del,]
-            }
-          }
-          
-          #符合条件的gRNA进行切割效率预测
-          write.csv(gRNA.table, file = "CCTOP-predictor.csv", row.names = FALSE)
-          source_python("crispr_get_score.py")
-          py$reader_writer("CCTOP-predictor.csv",species)
-          gRNA.table <-
-            read.csv("CCTOP-predictor.csv", header = TRUE)
-          
-          #切割效率得分低于0.60的删除
-          gRNA.table <-
-            gRNA.table[which(gRNA.table$crispr_score >= 0.60), ]
-          
-          #上下游分开
-          gRNA.table1 <-
-            gRNA.table[which(gRNA.table$end <= KO_region2$start), ]
-          gRNA.table2 <-
-            gRNA.table[which(gRNA.table$start >= KO_region2$end), ]
-          
-          #切割得分大于0.65的优先
-          gRNA.table1 <-
-            rbind(gRNA.table1[which(gRNA.table1$crispr_score >= 0.65), ], gRNA.table1[which(gRNA.table1$crispr_score <
-                                                                                              0.65), ])
-          gRNA.table2 <-
-            rbind(gRNA.table2[which(gRNA.table2$crispr_score >= 0.65), ], gRNA.table2[which(gRNA.table2$crispr_score <
-                                                                                              0.65), ])
-          
-          #重新合并
-          gRNA.table <- rbind(gRNA.table1, gRNA.table2)
-          
-          #table1是外显子上游的gRNA,table2是外显子下游的gRNA
-          {
-            if (nrow(gRNA.table1) == 0 | nrow(gRNA.table2) == 0) {
-              next
-            }
-            else{
-              gRNA2 <- Get_result1(gRNA.table, KO_region2)        #相差0.05分以内优选
-            }
-          }
-          #如果没有相差0.05分以内的gRNA2
-          if (class(gRNA2) == "NULL") {
-            gRNA2 <- rbind(gRNA.table1[1,], gRNA.table2[1,])
-          }
-          
-          if (exists("gRNA2") == TRUE) {
-            judge2_2 <- "TRUE"
-          }
+        }
+        #如果没有相差0.05分以内的gRNA2
+        if (class(gRNA2) == "NULL") {
+          gRNA2 <- rbind(gRNA.table1[1, ], gRNA.table2[1, ])
+        }
+        
+        if (exists("gRNA2") == TRUE) {
+          judge2_2 <- "TRUE"
         }
       }
     }
+  }
     
-    
-    # # 画图 ----------------------------------------------------------------------
-    # {
-    #   if (exists("gRNA2") == TRUE) {
-    #     y <- 0.5
-    #     f <- data.frame(x = c(1:nchar(Gene)), y = y)
-    #     p1 <-
-    #       ggplot(data = f, aes(x = x, y = y)) + geom_path(color = "grey", size = 4.5) + theme_bw() +
-    #       theme(panel.grid = element_blank(), panel.border = element_blank()) +
-    #       ylim(0, 1)
-    #     
-    #     for (i in 1:nrow(t_Exon_region)) {
-    #       start <- as.numeric(t_Exon_region[i, ]$Exon_start)
-    #       end <- as.numeric(t_Exon_region[i, ]$Exon_end)
-    #       p1 <- p1 + annotate(
-    #         "rect",
-    #         xmin = start,
-    #         xmax = end,
-    #         ymin = y - 0.04,
-    #         ymax = y + 0.04,
-    #         colour = "orange2",
-    #         alpha = .0
-    #       ) + annotate(
-    #         "text",
-    #         label = i,
-    #         x = mean(c(start, end)),
-    #         y = y - 0.05,
-    #         size = 3
-    #       )
-    #     }  #最长的转录本的展示
-    #     for (i in 1:nrow(t_Exon_CDS)) {
-    #       start <- as.numeric(t_Exon_CDS[i, ]$start)
-    #       end <- as.numeric(t_Exon_CDS[i, ]$end)
-    #       p1 <- p1 + annotate(
-    #         "rect",
-    #         xmin = start,
-    #         xmax = end,
-    #         ymin = y - 0.04,
-    #         ymax = y + 0.04,
-    #         fill = "orange2",
-    #         alpha = .7
-    #       )
-    #     }
-    #     
-    #     #gRNA位置
-    #     ff <-
-    #       data.frame(x = rep(min(gRNA2[1,]$start, gRNA2[2,]$start), 2), y = c(0.51, 0.57))
-    #     fff <-
-    #       data.frame(x = rep(max(gRNA2[1,]$end, gRNA2[2,]$end), 2), y = c(0.49, 0.43))
-    #     p1 <-
-    #       p1 + geom_line(
-    #         data = ff,
-    #         aes(x = x, y = y),
-    #         arrow = arrow(
-    #           length = unit(0.15, "cm"),
-    #           ends = "first",
-    #           type = "closed"
-    #         ),
-    #         color = "red"
-    #       ) +
-    #       geom_line(
-    #         data = fff,
-    #         aes(x = x, y = y),
-    #         arrow = arrow(
-    #           length = unit(0.15, "cm"),
-    #           ends = "first",
-    #           type = "closed"
-    #         ),
-    #         color = "red"
-    #       )
-    #     p1 <-
-    #       p1 + labs(title = "Overview of the Targeting Strategy") + theme(plot.title = element_text(hjust = 0.5,                                                                                         size = 25))
-    #     jpeg(file = "第二对gRNA换区域.png")
-    #     print(p1)
-    #     dev.off()
-    #     print(p1)
-    #   }
-    # }
-    
-    # 输出 ----------------------------------------------------------------------
-    #敲除大小
-    if (exists("gRNA2") == TRUE) {
-      if (Gene_rev) {
-        if (all(gRNA2$strand == "rev") |
-            all(gRNA2$strand == "fw")) {
-          KO_length2 <- abs(gRNA2[1,]$end - gRNA2[2,]$end)
-        }
-        else{
-          if (gRNA2[1, ]$strand == "rev" & gRNA2[2, ]$strand == "fw") {
-            if (gRNA2[1, ]$start > gRNA2[1, ]$start) {
-              pos1 <- gRNA2[1, ]$end
-              pos2 <- gRNA2[2, ]$start
-              KO_length2 <- abs(pos1 - pos2) + 1
-            }
-            else{
-              pos1 <- gRNA2[1, ]$end
-              pos2 <- gRNA2[2, ]$start
-              KO_length2 <- abs(pos1 - pos2) - 1
-            }
+  # 输出 ----------------------------------------------------------------------
+  #敲除大小
+  if (exists("gRNA2") == TRUE) {
+    if (Gene_rev) {
+      if (all(gRNA2$strand == "rev") |
+          all(gRNA2$strand == "fw")) {
+        KO_length2 <- abs(gRNA2[1, ]$end - gRNA2[2, ]$end)
+      }
+      else{
+        if (gRNA2[1,]$strand == "rev" & gRNA2[2,]$strand == "fw") {
+          if (gRNA2[1,]$start > gRNA2[1,]$start) {
+            pos1 <- gRNA2[1,]$end
+            pos2 <- gRNA2[2,]$start
+            KO_length2 <- abs(pos1 - pos2) + 1
           }
           else{
-            if (gRNA2[1, ]$start > gRNA2[2, ]$start) {
-              pos1 <- gRNA2[1,]$start
-              pos2 <- gRNA2[2,]$end
-              KO_length2 <- abs(pos1 - pos2) - 1
-            }
-            else{
-              pos1 <- gRNA2[1,]$start
-              pos2 <- gRNA2[2,]$end
-              KO_length2 <- abs(pos1 - pos2) + 1
-            }
+            pos1 <- gRNA2[1,]$end
+            pos2 <- gRNA2[2,]$start
+            KO_length2 <- abs(pos1 - pos2) - 1
           }
         }
-      }
-      #正向
-      else{
-        if (all(gRNA2$strand == "rev") |
-            all(gRNA2$strand == "fw")) {
-          KO_length2 <- abs(gRNA2[1,]$end - gRNA2[2,]$end)
-        }
         else{
-          if (gRNA2[1, ]$strand == "rev" & gRNA2[2, ]$strand == "fw") {
+          if (gRNA2[1,]$start > gRNA2[2,]$start) {
             pos1 <- gRNA2[1, ]$start
             pos2 <- gRNA2[2, ]$end
             KO_length2 <- abs(pos1 - pos2) - 1
           }
           else{
-            pos1 <- gRNA2[1, ]$end
-            pos2 <- gRNA2[2, ]$start
-            KO_length2 <- abs(pos1 - pos2) - 1
+            pos1 <- gRNA2[1, ]$start
+            pos2 <- gRNA2[2, ]$end
+            KO_length2 <- abs(pos1 - pos2) + 1
           }
         }
       }
-      #敲除的CDS
-      if (exists("judge_2")) {
-        KO_length_CDS2 <- KO_region[h, ]$Exon_length
-      }
-      else if (exists("judge2_2")) {
-        KO_length_CDS2 <- KO_region2$Exon_length
-      }
-      else if (exists("judge3_2")) {
-        KO_length_CDS2 <- KO_region3[h, ]$Exon_length
+    }
+    #正向
+    else{
+      if (all(gRNA2$strand == "rev") |
+          all(gRNA2$strand == "fw")) {
+        KO_length2 <- abs(gRNA2[1, ]$end - gRNA2[2, ]$end)
       }
       else{
-        KO_length_CDS2 <- KO_length2
+        if (gRNA2[1,]$strand == "rev" & gRNA2[2,]$strand == "fw") {
+          pos1 <- gRNA2[1,]$start
+          pos2 <- gRNA2[2,]$end
+          KO_length2 <- abs(pos1 - pos2) + 1
+        }
+        else{
+          pos1 <- gRNA2[1,]$end
+          pos2 <- gRNA2[2,]$start
+          KO_length2 <- abs(pos1 - pos2) - 1
+        }
       }
     }
-    gRNA2[3,1]<-KO_length2
-    gRNA2[3,2]<-KO_length_CDS2
-    return(gRNA2)
+    #敲除的CDS
+    if (exists("judge_2")) {
+      KO_length_CDS2 <- KO_region[h,]$Exon_length
+    }
+    else if (exists("judge2_2")) {
+      KO_length_CDS2 <- KO_region2$Exon_length
+    }
+    else if (exists("judge3_2")) {
+      KO_length_CDS2 <- KO_region3[h,]$Exon_length
+    }
+    else{
+      KO_length_CDS2 <- KO_length2
+    }
   }
+  gRNA2[1, 8] <- KO_length2
+  gRNA2[2, 8] <- KO_length_CDS2
+  return(gRNA2)
 }
+
 
 

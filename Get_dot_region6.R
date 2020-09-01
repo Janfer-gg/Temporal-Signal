@@ -8,30 +8,30 @@ Get_dot_region6 <- function(KO_region) {
       substring(Gene, KO_region$end, KO_region$end+400)
   }
   #出现连续10个及以上的A碱基重复，或连续15个及以上G\C\T单碱基重复
-  a1<-matchPattern("AAAAAAAAAA",subject = analysis_seq)
+  # a1<-matchPattern("AAAAAAAAAA",subject = analysis_seq)
   a2<-matchPattern("GGGGGGGGGGGGGGG",subject = analysis_seq)
   a3<-matchPattern("TTTTTTTTTTTTTTT",subject = analysis_seq)
   a4<-matchPattern("ccccccccccccccc",subject = analysis_seq)
-  if(length(a1)!=0 | length(a2)!=0 | length(a3)!=0 | length(a4)!=0){
-    print("连续单碱基重复")
+  if(length(a2)!=0 | length(a3)!=0 | length(a4)!=0){
+    print("下游连续单碱基重复")
     return(TRUE)
     break
   }
   
   #70bp以内含有3个及以上的10-20bp连续重复
-  analysis_pos <- numeric()
-  len <- nchar(analysis_seq) - 9
-  for (i in 1:len) {
-    pattern <- substring(analysis_seq, i, i + 9)
-    pos <- gregexpr(pattern, analysis_seq)[[1]]
-    if(length(pos)>=3){
-      if(pos[3]-pos[1]<=60){
-        print("70bp内3次重复")
-        return(TRUE)
-        break
-      }
-    }
-  }
+  # analysis_pos <- numeric()
+  # len <- nchar(analysis_seq) - 9
+  # for (i in 1:len) {
+  #   pattern <- substring(analysis_seq, i, i + 9)
+  #   pos <- gregexpr(pattern, analysis_seq)[[1]]
+  #   if(length(pos)>=3){
+  #     if(pos[3]-pos[1]<=60){
+  #       print("70bp内3次重复")
+  #       return(TRUE)
+  #       break
+  #     }
+  #   }
+  # }
   
   # analysis_seq<-DNAString(analysis_seq)
   # pos<-findPalindromes(analysis_seq, min.armlength = 20, max.looplength = 50, min.looplength = 0, max.mismatch = 0)

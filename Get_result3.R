@@ -41,7 +41,7 @@ Get_result3 <- function(gRNA.table) {
           if (gRNA1$strand == "rev" & gRNA2$strand == "fw") {
             pos1 <- gRNA1$start
             pos2 <- gRNA2$end
-            KO_length <- abs(pos1 - pos2) +1
+            KO_length <- abs(pos1 - pos2) -1
           }
           else{
             pos1 <- gRNA1$end
@@ -51,7 +51,7 @@ Get_result3 <- function(gRNA.table) {
         }
       }
       #如果相距100bp以上且切割大小非3的倍数，则符合
-      if (KO_length>=100 & KO_length%%3!=0) {
+      if (KO_length>=100 & KO_length %% 3!=0) {
         {
           if (Gene_rev == "FALSE") {
             if (gRNA1$end < t_CDS_30 | gRNA2$end < t_CDS_30) {
@@ -60,7 +60,7 @@ Get_result3 <- function(gRNA.table) {
             }
           }
           else{
-            if (gRNA1$end > t_CDS_30 | gRNA2$end > t_CDS_30) {
+            if (gRNA1$start > t_CDS_30 | gRNA2$start > t_CDS_30) {
               return(rbind(gRNA1, gRNA2))
               break
             }

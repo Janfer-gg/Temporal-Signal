@@ -45,7 +45,7 @@ Get_result2 <- function(gRNA.table) {
             if (gRNA1$strand == "rev" & gRNA2$strand == "fw") {
               pos1 <- gRNA1$start
               pos2 <- gRNA2$end
-              KO_length <- abs(pos1 - pos2) +1
+              KO_length <- abs(pos1 - pos2) -1
             }
             else{
               pos1 <- gRNA1$end
@@ -64,7 +64,7 @@ Get_result2 <- function(gRNA.table) {
               }
             }
             else{
-              if (gRNA1$end > t_CDS_30 | gRNA2$end > t_CDS_30) {
+              if (gRNA1$start > t_CDS_30 | gRNA2$start > t_CDS_30) {
                 return(rbind(gRNA1, gRNA2))
                 break
               }
