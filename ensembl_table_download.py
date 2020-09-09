@@ -4,6 +4,7 @@ from lxml import etree
 import csv
 import logging
 import re
+requests.packages.urllib3.disable_warnings()
 logging.basicConfig(level=logging.DEBUG,format="%(asctime)s %(name)s %(levelname)s %(message)s",datefmt = '%Y-%m-%d  %H:%M:%S %a' )
 headers = {
 "Accept":"application/json, text/javascript, */*; q=0.01",
@@ -22,14 +23,14 @@ def get_msg(**kwargs):
 def xpath_html(content):
     return etree.HTML(content)
 
-def download_csv(gene_name):
+def download_csv(file_path,gene_name):
     start_url = 'http://asia.ensembl.org/Gene/Summary?db=core;g={gene_name}'.format(gene_name=gene_name)
-    resp_content = get_msg(url=start_url,headers=headers)
+    resp_content = get_msg(url=start_url,headers=headers, verify=False)
     resp_content = re.sub(r'<span class="_ht_tip hidden">(.*?)</span>','',resp_content)
     html_xpath = xpath_html(resp_content)
     th_list = html_xpath.xpath('//*[@id="transcripts_table"]//th//text()')
     trs = html_xpath.xpath('//*[@id="transcripts_table"]//tbody/tr')
-    with open('transcript.csv', 'w', encoding='utf8',newline='')as aa:
+    with open('{}/transcript.csv'.format(file_path), 'w', encoding='utf8',newline='')as aa:
         csv_writer = csv.writer(aa)
         csv_writer.writerow(th_list)
         for tr in trs:
@@ -41,8 +42,7 @@ def download_csv(gene_name):
             td_list[-1]=td_list[-1].split('\n        \n        ')[-1]
             logging.info('[+]正在写入行{}'.format(td_list))
             csv_writer.writerow(td_list)
-        logging.debug('[+]写入{}.csv完毕'.format(gene_name))
 # if __name__ == '__main__':
 #     #TODO 更改gene_name
-#     gene_name = 'ENSG00000124523'
+#     gene_name = 'ENSCAFG00000032392'
 #     download_csv(gene_name)

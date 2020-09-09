@@ -40,21 +40,21 @@ Get_dot_region6 <- function(KO_region) {
   # }
   
   #间隔≤50bp的20bp及以上的反向互补序列
-  len <- nchar(analysis_seq) - 19
-  for (i in 1:len) {
-    pattern <- substring(analysis_seq, i, i + 19)
-    pattern <- reverseComplement(DNAString(pattern))
-    pos <- matchPattern(pattern, analysis_seq, max.mismatch = 4)
-    if (length(pos) > 0) {
-      for (j in 1:length(pos)) {
-        if (end(pos[j]) - i <= 90 & end(pos[j]) - i >= 39) {
-          print("回文")
-          return(TRUE)
-          break
-        }
-      }
-    }
-  }
+  # len <- nchar(analysis_seq) - 19
+  # for (i in 1:len) {
+  #   pattern <- substring(analysis_seq, i, i + 19)
+  #   pattern <- reverseComplement(DNAString(pattern))
+  #   pos <- matchPattern(pattern, analysis_seq, max.mismatch = 4)
+  #   if (length(pos) > 0) {
+  #     for (j in 1:length(pos)) {
+  #       if (end(pos[j]) - i <= 90 & end(pos[j]) - i >= 39) {
+  #         print("回文")
+  #         return(TRUE)
+  #         break
+  #       }
+  #     }
+  #   }
+  # }
   
   #≥7bp的全GC序列重复
   # len2 <- nchar(analysis_seq) - 6

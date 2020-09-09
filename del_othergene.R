@@ -1,6 +1,8 @@
 #某个区域有无其他基因重叠
 Get_othergene<-function(species,chr,start,end){
-  chr<-as.numeric(chr)
+  if(chr!="X" & chr!="Y"){
+    chr<-as.numeric(chr)
+  }
   server <- "https://rest.ensembl.org"
   #ext <- "/overlap/region/human/6:11093834-11138733?feature=gene"
   ext <- paste0("/overlap/region/",species,"/",chr,":",start,"-",end,"?feature=gene")

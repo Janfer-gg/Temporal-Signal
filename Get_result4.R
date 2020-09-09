@@ -1,35 +1,73 @@
-Get_result4 <- function(gRNA,gRNA.table, KO_region) {
+Get_result4 <- function(gRNA.table) {
   for (i in 1:nrow(gRNA.table)) {
     j <- i + 1
     repeat {
       if (j > nrow(gRNA.table)) {
         break
       }
-      #如果相差0.05以内
-      if (gRNA.table[j, ]$crispr_score >= gRNA.table[i, ]$crispr_score - 0.05 & gRNA.table[j, ]$crispr_score<=gRNA.table[i, ]$crispr_score + 0.05) {
-        #如果一个在上游，一个在下游，则符合
-        if (gRNA.table[i, ]$end <= KO_region$start &
-            gRNA.table[j, ]$start >= KO_region$end |
-            gRNA.table[i, ]$start >= KO_region$end &
-            gRNA.table[j, ]$end <= KO_region$start) {
-          t1<-gRNA.table[i, ]$end %in% c((gRNA[1,]$start+3):(gRNA[1,]$end-3)) | gRNA.table[i, ]$start %in% c((gRNA[1,]$start+3):(gRNA[1,]$end-3))
-          t2<-gRNA.table[i, ]$end %in% c((gRNA[2,]$start+3):(gRNA[2,]$end-3)) | gRNA.table[i, ]$start %in% c((gRNA[2,]$start+3):(gRNA[2,]$end-3))
-          t3<-gRNA.table[j, ]$end %in% c((gRNA[1,]$start+3):(gRNA[1,]$end-3)) | gRNA.table[j, ]$start %in% c((gRNA[1,]$start+3):(gRNA[1,]$end-3))
-          t4<-gRNA.table[j, ]$end %in% c((gRNA[2,]$start+3):(gRNA[2,]$end-3)) | gRNA.table[j, ]$start %in% c((gRNA[2,]$start+3):(gRNA[2,]$end-3))
-          if(t1==FALSE & t2==FALSE & t3==FALSE & t4==FALSE){
-            gRNA1 <- gRNA.table[i, ]
-            gRNA2 <- gRNA.table[j, ]
-            break
+      gRNA1 <- gRNA.table[i, ]
+      gRNA2 <- gRNA.table[j, ]
+      if (Gene_rev) {
+        if (gRNA1$strand == "rev" & gRNA2$strand == "rev" |
+            gRNA1$strand == "fw" & gRNA2$strand == "fw") {
+          KO_length <- abs(gRNA1$end - gRNA2$end) 
+        }
+        else{
+          if (gRNA1$strand == "rev" & gRNA2$strand == "fw") {
+            if(gRNA1$start>gRNA2$start){
+              KO_length <- abs(gRNA1$end - gRNA2$start) +1
+            }
+            else{
+              KO_length <- abs(gRNA1$end - gRNA2$start) -1
+            }
+          }
+          else{
+            if(gRNA1$start>gRNA2$start){
+              KO_length <- abs(gRNA1$start - gRNA2$end) -1
+            }
+            else{
+              KO_length <- abs(gRNA1$start - gRNA2$end) +1
+            }
+          }
+        }
+      }
+      #正向
+      else{
+        if (gRNA1$strand == "rev" & gRNA2$strand == "rev" |
+            gRNA1$strand == "fw" & gRNA2$strand == "fw") {
+          KO_length <- abs(gRNA1$end - gRNA2$end) 
+        }
+        else{
+          if (gRNA1$strand == "rev" & gRNA2$strand == "fw") {
+            pos1 <- gRNA1$start
+            pos2 <- gRNA2$end
+            KO_length <- abs(pos1 - pos2) -1
+          }
+          else{
+            pos1 <- gRNA1$end
+            pos2 <- gRNA2$start
+            KO_length <- abs(pos1 - pos2) -1
+          }
+        }
+      }
+      #如果相距100bp以上且切割大小非3的倍数,则符合
+      if (KO_length>=100 & KO_length %% 3!=0) {
+        {
+          if (Gene_rev == "FALSE") {
+            if (gRNA1$end < t_CDS_30 | gRNA2$end < t_CDS_30) {
+              return(rbind(gRNA1, gRNA2))
+              break
+            }
+          }
+          else{
+            if (gRNA1$start > t_CDS_30 | gRNA2$start > t_CDS_30) {
+              return(rbind(gRNA1, gRNA2))
+              break
+            }
           }
         }
       }
       j <- j + 1
     }
-    if (exists("gRNA1") == TRUE) {
-      break
-    }
-  }
-  if (exists("gRNA1") == TRUE) {
-    return(rbind(gRNA1, gRNA2))
   }
 }

@@ -50,8 +50,8 @@ Get_result3 <- function(gRNA.table) {
           }
         }
       }
-      #如果相距100bp以上且切割大小非3的倍数，则符合
-      if (KO_length>=100 & KO_length %% 3!=0) {
+      #如果相距100bp以上且切割大小非3的倍数,且都大于70分,则符合
+      if (KO_length>=100 & KO_length %% 3!=0 & gRNA1$Score1>=70 & gRNA2$Score1>=70) {
         {
           if (Gene_rev == "FALSE") {
             if (gRNA1$end < t_CDS_30 | gRNA2$end < t_CDS_30) {

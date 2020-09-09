@@ -5,7 +5,7 @@ KO_region_image3 <- function(Gene, allinfo) {
   f <- data.frame(x = c(-(nchar(Gene)/50):nchar(Gene)*1.02), y = y)
   p2 <-
     ggplot(data = f, aes(x = x, y = y)) + geom_path(color = "white") + theme_bw() +
-    theme(panel.grid = element_blank(), panel.border = element_blank())+scale_y_continuous(breaks=NULL,limits = c(-19,0))+scale_x_discrete(breaks=NULL)+xlab(NULL)+ylab(NULL)
+    theme(panel.grid = element_blank(), panel.border = element_blank())+scale_y_continuous(breaks=NULL,limits = c(-21.7,0))+scale_x_discrete(breaks=NULL)+xlab(NULL)+ylab(NULL)
   transcript.pos<-data.frame(name=character(),start=numeric(),end=numeric(),y=numeric())
   
   for (i in 1:length(allinfo$Transcript)){
@@ -44,7 +44,7 @@ KO_region_image3 <- function(Gene, allinfo) {
         color = "blue"
       }
       else if(Transcript$source=="ensembl_havana"){
-        color ="#f8b957"
+        color ="orange2"
       }
       else{
         color ="#D01027"
@@ -56,8 +56,18 @@ KO_region_image3 <- function(Gene, allinfo) {
       Transcript$Translation$end - start + 1        #CDS终止位置
     
     y<-transcript.pos[i,]$y
-    ff <- data.frame(x = c(transcript.pos[i,]$start:transcript.pos[i,]$end),
-                     y = y)
+    if(y<(-21)){
+      next
+    }
+    ff <- data.frame(x = c(transcript.pos[i,]$start:transcript.pos[i,]$end),y = y)
+    {
+      if (Gene_rev) {
+        label <- paste0(Transcript$display_name, "<")
+      }
+      else{
+        label <- paste0(Transcript$display_name, ">")
+      }
+    }
     #转录本线
     p2 <-
       p2 + geom_line(data = ff,
@@ -65,7 +75,7 @@ KO_region_image3 <- function(Gene, allinfo) {
                      color ="#bdc4ca",
       ) + annotate(
         "text",
-        label = paste0(Transcript$display_name),
+        label = label,
         x = transcript.pos[i,]$start,
         y = y - 0.3,
         size = 2,color=color,hjust = 0
@@ -131,30 +141,60 @@ KO_region_image3 <- function(Gene, allinfo) {
   }
   #调用KO_region
   {
-    if (exists("KO_region2")) {
-      if (exists("Gene3")) {
-        p2 <-
-          p2 + annotate(
-            "rect",
-            xmin = KO_region2[t,]$start - 1500,
-            xmax = KO_region2[t,]$end - 900,
-            ymin = min(transcript.pos$y) - 0.7,
-            ymax = 0,
-            alpha = .0,
-            color = "red"
-          )
+    if (exists("Gene3")) {
+      {
+        if(min(transcript.pos$y)<(-21)){
+          p2 <-
+            p2 + annotate(
+              "rect",
+              xmin = min(gRNA_planC$start)-1200,
+              xmax = max(gRNA_planC$end)-1200,
+              ymin = -21.7,
+              ymax = 0,
+              alpha = .0,
+              color = "grey"
+            )
+        }
+        else{
+          p2 <-
+            p2 + annotate(
+              "rect",
+              xmin = min(gRNA_planC$start)-1200,
+              xmax = max(gRNA_planC$end)-1200,
+              ymin = min(transcript.pos$y) - 0.7,
+              ymax = 0,
+              alpha = .0,
+              color = "grey"
+            )
+        }
       }
-      else{
-        p2 <-
-          p2 + annotate(
-            "rect",
-            xmin = KO_region2[t,]$start - 300,
-            xmax = KO_region2[t,]$end + 300,
-            ymin = min(transcript.pos$y) - 0.7,
-            ymax =0,
-            alpha = .0,
-            color = "red"
-          )
+    }
+    else{
+      {
+        if(min(transcript.pos$y)<(-21)){
+          p2 <-
+            p2 + annotate(
+              "rect",
+              xmin = min(gRNA_planC$start),
+              xmax = max(gRNA_planC$end),
+              ymin = -21.7,
+              ymax = 0,
+              alpha = .0,
+              color = "grey"
+            )
+        }
+        else{
+          p2 <-
+            p2 + annotate(
+              "rect",
+              xmin = min(gRNA_planC$start),
+              xmax = max(gRNA_planC$end),
+              ymin = min(transcript.pos$y) - 0.7,
+              ymax = 0,
+              alpha = .0,
+              color = "grey"
+            )
+        }
       }
     }
   }
@@ -166,31 +206,38 @@ KO_region_image3 <- function(Gene, allinfo) {
   {
     if (cut_large >= -2.1) {
       img <-
-        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x280")
+        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x260")
     }
     else if (cut_large >= -4.2) {
       img <-
-        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x440")
+        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x420")
     }
     else if (cut_large >= -6.3) {
       img <-
-        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x600")
+        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x580")
     }
     else if (cut_large >= -8.4) {
       img <-
-        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x720")
+        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x700")
     }
     else if (cut_large >= -10.5) {
       img <-
-        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x860")
+        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x840")
     }
     else if (cut_large >= -12.6) {
       img <-
-        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x980")
+        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x960")
     }
     else if (cut_large >= -15) {
       img <-
-        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x1140")
+        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x1120")
+    }
+    else if (cut_large >= -18) {
+      img <-
+        image_crop(image_read(paste0(filepath,"//","transcript_region3.png")), "x1320")
+    }
+    else{
+      img <- image_read(paste0(filepath,"//","transcript_region3.png"))
     }
   }
   return(img)

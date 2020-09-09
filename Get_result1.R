@@ -12,9 +12,15 @@ Get_result1 <- function(gRNA.table, KO_region) {
             gRNA.table[j, ]$start >= KO_region$end |
             gRNA.table[i, ]$start >= KO_region$end &
             gRNA.table[j, ]$end <= KO_region$start) {
-          gRNA1 <- gRNA.table[i, ]
-          gRNA2 <- gRNA.table[j, ]
-          break
+          if(gRNA.table[i,]$Score1>=70 &gRNA.table[j,]$Score1>=70)
+          {
+            gRNA1 <- gRNA.table[i, ]
+            gRNA2 <- gRNA.table[j, ]
+            break
+          }
+        }
+        else{
+          
         }
       }
       j <- j + 1
