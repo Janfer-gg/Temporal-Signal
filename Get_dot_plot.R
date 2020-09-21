@@ -48,7 +48,7 @@ Get_dot_plot<-function(KO_region){
 
 #大片段敲除的上游点阵分析
 Get_dot_plot2<-function(KO_region){
-  if (KO_region$start < 500 | KO_region$end + 500 > nchar(Gene)) {
+  if (KO_region$start < 800 | KO_region$end + 800 > nchar(Gene)) {
     analysis_seq <-
       substring(Gene2, KO_region$start + 500 - 800, KO_region$start+500)
   }
@@ -97,7 +97,7 @@ Get_dot_plot2<-function(KO_region){
 
 #大片段敲除的下游点阵分析
 Get_dot_plot3<-function(KO_region){
-  if (KO_region$start < 500 | KO_region$end + 500 > nchar(Gene)) {
+  if (KO_region$start < 800 | KO_region$end + 800 > nchar(Gene)) {
     analysis_seq <-
       substring(Gene2, KO_region$end+500, KO_region$end+500+800)
   }

@@ -1,9 +1,9 @@
 #反向重复
 #含有反向重复>100 bp的序列，此区域弃用
 Get_dot_region9 <- function(KO_region) {
-  if(KO_region$start<500 | KO_region$end+500>nchar(Gene)){
+  if(KO_region$start<800 | KO_region$end+800>nchar(Gene)){
     analysis_seq <-
-      substring(Gene2, KO_region$start+500 - 800, KO_region$end+500 + 800)
+      substring(Gene2, KO_region$start+500 - 800, KO_region$start+500)
   }
   else{
     analysis_seq <-

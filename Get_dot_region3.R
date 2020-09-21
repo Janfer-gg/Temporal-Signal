@@ -13,7 +13,7 @@ Get_dot_region4 <- function(KO_region) {
   a3<-matchPattern("TTTTTTTTTTTTTTT",subject = analysis_seq)
   a4<-matchPattern("ccccccccccccccc",subject = analysis_seq)
   if(length(a2)!=0 | length(a3)!=0 | length(a4)!=0){
-    print("连续单碱基重复")
+    print("15")
     return(TRUE)
     break
   }

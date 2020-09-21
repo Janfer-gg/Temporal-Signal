@@ -1,7 +1,7 @@
 #反向重复
 #含有反向重复>100 bp的序列，此区域弃用
 Get_dot_region2 <- function(KO_region) {
-  if(KO_region$start<500 | KO_region$end+500>nchar(Gene)){
+  if(KO_region$start<800 | KO_region$end+800>nchar(Gene)){
     analysis_seq <-
       substring(Gene2, KO_region$start+500 - 800, KO_region$end+500 + 800)
   }
@@ -95,33 +95,7 @@ Get_dot_region2 <- function(KO_region) {
 #   }
 # }
 
-#有>=25 bp的反向重复序列，间隔<50 bp，区域弃用
-# Get_dot_region3 <- function(KO_region) {
-#   if(KO_region$start<500 | KO_region$end+500>nchar(Gene)){
-#     analysis_seq <-
-#       substring(Gene2, KO_region$start+500 - 800, KO_region$end+500 + 800)
-#   }
-#   else{
-#     analysis_seq <-
-#       substring(Gene, KO_region$start - 800, KO_region$end + 800)
-#   }
-#   
-#   analysis_seq_rev<-as.character(reverseComplement(DNAString(analysis_seq)))
-#   analysis_pos <- numeric()
-#   len <- nchar(analysis_seq) - 24
-#   for (i in 1:len) {
-#     pattern <- substring(analysis_seq_rev, i, i + 24)
-#     pos <- gregexpr(pattern, analysis_seq)[[1]]
-#     for (j in 1:length(pos)) {
-#       if (pos[j] != i) {
-#         if(pos[j] -i <=70 &pos[j] -i >=20 ){
-#           return(TRUE)
-#         }
-#       }
-#     }
-#   }
-#   return(FALSE)
-# }
+
 
 
 

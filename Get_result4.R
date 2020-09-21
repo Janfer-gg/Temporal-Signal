@@ -41,12 +41,12 @@ Get_result4 <- function(gRNA.table) {
           if (gRNA1$strand == "rev" & gRNA2$strand == "fw") {
             pos1 <- gRNA1$start
             pos2 <- gRNA2$end
-            KO_length <- abs(pos1 - pos2) -1
+            KO_length <- abs(pos1 - pos2-1) 
           }
           else{
             pos1 <- gRNA1$end
             pos2 <- gRNA2$start
-            KO_length <- abs(pos1 - pos2) -1
+            KO_length <- abs(pos1 - pos2+1) 
           }
         }
       }

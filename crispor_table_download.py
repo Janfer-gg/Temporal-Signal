@@ -34,7 +34,7 @@ def xpath_html(content):
     return etree.HTML(content)
 
 
-def run(array,org,filepath):
+def run(array,org,filepath,plan):
 
     species_dict = {
         'Human':"hg38",
@@ -42,7 +42,7 @@ def run(array,org,filepath):
         'Rat':"ensRatNor",
         'dog':"ens79CanFam",
         'chinese Hamster':"GCA_900186095.1",
-        'green monkey':'green monkey'
+        'green monkey':'chlSab2'
 
 
     }
@@ -67,12 +67,12 @@ def run(array,org,filepath):
         time.sleep(10)
         logging.info('等待结束')
         logging.info('数据正在加载')
-        with open('{}/aa.html'.format(filepath), 'wb')as f:
+        with open('{}/aa{}.html'.format(filepath,plan), 'wb')as f:
             for chunk in resp.iter_content(chunk_size=512):
                 if chunk:
                     f.write(chunk)
         logging.info('数据加载完毕')
-        with open('{}/aa.html'.format(filepath), 'rb')as r_f:
+        with open('{}/aa{}.html'.format(filepath,plan), 'rb')as r_f:
             resp_content = r_f.read()
         html_xpath = xpath_html(resp_content)
         thead_tr_list = html_xpath.xpath("//*[@id='otTable']/thead/tr")
@@ -80,14 +80,14 @@ def run(array,org,filepath):
         logging.info(thead_tr_list)
         if thead_tr_list:
             break
-    with open('{}/aa.html'.format(filepath), 'rb')as r_f:
+    with open('{}/aa{}.html'.format(filepath,plan), 'rb')as r_f:
         resp_content = r_f.read()
     html_xpath = xpath_html(resp_content)
 
     thead_tr_list = html_xpath.xpath("//*[@id='otTable']/thead/tr")
     trs = html_xpath.xpath("//tr")
 
-    with open('{}/gRNA.csv'.format(filepath), 'w', encoding='utf8', newline='')as aa:
+    with open('{}/gRNA{}.csv'.format(filepath,plan), 'w', encoding='utf8', newline='')as aa:
         csv_writer = csv.writer(aa)
         for thead_tr in thead_tr_list:
             thead_ths = thead_tr.xpath('./th')
@@ -103,14 +103,12 @@ def run(array,org,filepath):
                 td_list.append(td_str)
             try:
                 td_list[8] = ''.join([i.strip() for i in td_list[8].split('\n')[2].strip()[:9]])
-
             except:
                 pass
             # logging.info('[+]正在写入行{}'.format(td_list))
-
             csv_writer.writerow(td_list)
 
-        logging.debug('[+]写入gRNA.csv完毕'.format(batch_id))
+        logging.debug('[+]写入gRNA{}.csv完毕'.format(plan))
 
 
 # if __name__ == '__main__':

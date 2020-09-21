@@ -1,12 +1,12 @@
 #ÕıÏòÖØ¸´
 Get_dot_region1 <- function(KO_region) {
-  if(KO_region$start<900 | KO_region$end+900>nchar(Gene)){
+  if(KO_region$start<800 | KO_region$end+800>nchar(Gene)){
     analysis_seq <-
-      substring(Gene2, KO_region$start+500 - 900, KO_region$end+500 + 900)
+      substring(Gene2, KO_region$start+500 - 800, KO_region$end+500 + 800)
   }
   else{
     analysis_seq <-
-      substring(Gene, KO_region$start - 900, KO_region$end + 900)
+      substring(Gene, KO_region$start - 800, KO_region$end + 800)
   }
   
   analysis_pos <- numeric()

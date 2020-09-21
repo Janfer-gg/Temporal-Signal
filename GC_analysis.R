@@ -10,7 +10,7 @@ GC_analysis1<-function(KO_region){
   }
   analysis_seq<-DNAString(analysis_seq)
   GC<-sum(letterFrequency(analysis_seq,c("G","C")))/nchar(analysis_seq)
-  if(GC > 0.7| GC < 0.3){
+  if(GC > 0.7| GC < 0.25){
     return(TRUE)
   }
   else{
@@ -74,7 +74,10 @@ GC_analysis2 <- function(KO_region) {
         avoid_district[j, 2] <- GC_avoid_region[i , 2]
         i <- i + 1
         if (i == length(GC_avoid_region[, 1])) {
-          avoid_district[j, 2] <- GC_avoid_region[i, 2]
+          void_district[j, 2] <- GC_avoid_region[i-1, 2]
+          j<-j+1
+          avoid_district[j,1] <-GC_avoid_region[i,1]
+          avoid_district[j,2]<-GC_avoid_region[i,2]
           break
         }
         times <- 0
@@ -91,4 +94,19 @@ GC_analysis2 <- function(KO_region) {
   else{
     return(FALSE)
   }
+}
+
+#Æ½¾ùGCº¬Á¿
+GC_analysis3<-function(KO_region){
+  if(KO_region$start<800 | KO_region$end+800>nchar(Gene)){
+    analysis_seq <-
+      substring(Gene2, KO_region$start+500 - 800, KO_region$end+500 + 800)
+  }
+  else{
+    analysis_seq <-
+      substring(Gene, KO_region$start - 800, KO_region$end + 800)
+  }
+  analysis_seq<-DNAString(analysis_seq)
+  GC<-sum(letterFrequency(analysis_seq,c("G","C")))/nchar(analysis_seq)
+  return(GC)
 }

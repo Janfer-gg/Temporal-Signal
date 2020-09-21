@@ -1,12 +1,12 @@
 #ÕıÏòÖØ¸´
 Get_dot_region7 <- function(KO_region) {
-  if(KO_region$start<500 | KO_region$end+500>nchar(Gene)){
+  if(KO_region$start<800 | KO_region$end+800>nchar(Gene)){
     analysis_seq <-
-      substring(Gene2, KO_region$start+500 - 900, KO_region$end+500 + 900)
+      substring(Gene2, KO_region$start+500 - 800, KO_region$start+500)
   }
   else{
     analysis_seq <-
-      substring(Gene, KO_region$start - 900, KO_region$start)
+      substring(Gene, KO_region$start - 800, KO_region$start)
   }
   
   analysis_pos <- numeric()
@@ -65,8 +65,8 @@ Get_dot_region7 <- function(KO_region) {
       j <- j + 1
     }
   }
-  dot.frame[, 1] <-dot.frame[, 1] + KO_region$start - 900- 1
-  dot.frame[, 2] <-dot.frame[, 2] + KO_region$start - 900- 1
+  dot.frame[, 1] <-dot.frame[, 1] + KO_region$start - 800- 1
+  dot.frame[, 2] <-dot.frame[, 2] + KO_region$start - 800- 1
   names(dot.frame) <- c("start", "end")
   length<-dot.frame$end-dot.frame$start+1
   dot.frame<-cbind(dot.frame,length)

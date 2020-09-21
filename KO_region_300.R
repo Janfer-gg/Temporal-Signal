@@ -120,19 +120,44 @@ KO_region_300 <- function(KO_region3) {
   KO_region3 <-
     KO_region3[which(KO_region3$Exon_length >= 100),]         #外显子不小于100bp
   
-  if(nrow(Exon_CDS)!=0) {
-    for (i in 1:nrow(KO_region3)) {
-      for (j in 1:nrow(Exon_CDS)) {
-        if (Exon_CDS[j, ]$start >= KO_region3[i, ]$start &
-            Exon_CDS[j, ]$end <= KO_region3[i, ]$end) {
-          KO_region3[i, ]$times <- KO_region3[i, ]$times - 1
+  #times-1
+  if (nrow(KO_region3) != 0) {
+    if (nrow(Exon_CDS) != 0) {
+      for (i in 1:nrow(KO_region3)) {
+        for (j in 1:nrow(Exon_CDS)) {
+          if (Exon_CDS[j,]$start >= KO_region3[i,]$start &
+              Exon_CDS[j,]$end <= KO_region3[i,]$end) {
+            KO_region3[i,]$times <- KO_region3[i,]$times - 1
+          }
         }
       }
     }
   }
-  if(nrow(Exon_CDS)==0){
-    return(KO_region3)
+  
+  # if(nrow(Exon_CDS)==0){
+  #   return(KO_region3)
+  # }
+  if(nrow(KO_region3)!=0) {
+    #如果与其他基因重叠
+    if(nrow(avoid_region)!=0){
+      avoid_ko_region<-data.frame()
+      avoid_ko_del<-numeric()
+      for (i in 1:nrow(KO_region3)) {
+        for(j in 1:nrow(avoid_region)){
+          #如果重叠
+          if(!(KO_region3[i,]$end<avoid_region[j,]$start | KO_region3[i,]$start>avoid_region[j,]$end)){
+            avoid_ko_del<-append(avoid_ko_del,i)
+            avoid_ko_region<-rbind(avoid_ko_region,KO_region3[i,])
+          }
+        }
+      }
+      if(length(avoid_ko_del)!=0){
+        KO_region3 <- KO_region3[-avoid_ko_del, ]
+      }
+    }
   }
+  
+  
   if (nrow(KO_region3) != 0) {
     #GC含量分析:平均GC含量大于70%或小于30%，则退出该区域
     GC_del <- numeric()
@@ -145,20 +170,20 @@ KO_region_300 <- function(KO_region3) {
     if (length(GC_del) != 0) {
       KO_region3 <- KO_region3[-GC_del,]
     }
+  }
+  if (nrow(KO_region3) != 0) {
     dot_del <- numeric()
     for (i in 1:nrow(KO_region3)) {
-      analysis_dot1 <- Get_dot_region1(KO_region3[i, ])
-      analysis_dot2 <- Get_dot_region2(KO_region3[i, ])
-      analysis_dot3 <- Get_dot_region3(KO_region3[i, ])
-      analysis_dot4 <- Get_dot_region4(KO_region3[i, ])
-      if (analysis_dot1 == TRUE |
-          analysis_dot2 == TRUE |
-          analysis_dot3 == TRUE | analysis_dot4 == TRUE) {
+      analysis_dot1 <- Get_dot_region1(KO_region3[i,])
+      analysis_dot2 <- Get_dot_region2(KO_region3[i,])
+      analysis_dot4 <- Get_dot_region4(KO_region3[i,])
+      if (analysis_dot1 == TRUE | analysis_dot2 == TRUE |
+          analysis_dot4 == TRUE) {
         dot_del <- append(dot_del, i)
       }
     }
     if (length(dot_del) != 0) {
-      KO_region3 <- KO_region3[-dot_del, ]
+      KO_region3 <- KO_region3[-dot_del,]
     }
   }
   return(KO_region3)

@@ -25,9 +25,13 @@ KO_region_image3 <- function(Gene, allinfo) {
       transcript.pos2[i,]$y<-y
       for(j in i:nrow(transcript.pos2)){
         if(is.na(transcript.pos2[j,]$y)){
-          if(transcript.pos2[j,]$start>=transcript.pos2[i,]$end+(nchar(Gene)/100)){
+          if(transcript.pos2[j,]$start>=transcript.pos2[i,]$end+(nchar(Gene)/100)& transcript.pos[j,]$end-transcript.pos[j,]$start>=(nchar(Gene)/10) | transcript.pos2[j,]$start>=transcript.pos2[i,]$end+(nchar(Gene)/20)){
             transcript.pos2[j,]$y<-y
             transcript.pos2[i,]$end<-transcript.pos2[j,]$end
+          }
+          else if(transcript.pos2[j,]$end<=transcript.pos2[i,]$start-(nchar(Gene)/100)& transcript.pos[j,]$end-transcript.pos[j,]$start>=(nchar(Gene)/10) | transcript.pos2[j,]$end<=transcript.pos2[i,]$start-(nchar(Gene)/20)){
+            transcript.pos2[j,]$y<-y
+            transcript.pos2[i,]$start<-transcript.pos2[j,]$start
           }
         }
       }
@@ -130,6 +134,18 @@ KO_region_image3 <- function(Gene, allinfo) {
             p2 + annotate(
               "rect",
               xmin = Exon_start,
+              xmax = CDS_end,
+              ymin = y - 0.1,
+              ymax = y + 0.1,
+              fill = color
+            )
+        }
+        #部分在编码区(中间)
+        else if (Exon_start<CDS_start & Exon_end>CDS_start &Exon_end>CDS_end){
+          p2 <-
+            p2 + annotate(
+              "rect",
+              xmin = CDS_start,
               xmax = CDS_end,
               ymin = y - 0.1,
               ymax = y + 0.1,
