@@ -3,11 +3,11 @@ Get_gRNA2_planC <- function(KO_region2) {
     for (h in (t + 1):nrow(KO_region2)) {
       # 长度不够 --------------------------------------------------------------------
       if(KO_region2[h,]$start<1200 | KO_region2[h,]$end+1200>nchar(Gene)){
-        Gene3 <- Get_seq3(ID)
+        Gene3 <<- Get_seq3(ID)
         if (Gene_rev) {
           gene3 <- DNAString(Gene3)
           rev3 <- reverse(gene3)
-          Gene3 <- as.character(rev3)
+          Gene3 <<- as.character(rev3)
         }
         KO_region2[h,]$start<-KO_region2[h,]$start+1200
         KO_region2[h,]$end<-KO_region2[h,]$end+1200
@@ -180,7 +180,7 @@ Get_gRNA2_planC <- function(KO_region2) {
         }
         gRNA.table<-cbind(gRNA.table,crispr_score)
         #局部GC含量大于80%或小于25%，避免该区域
-        GC_avoid_region <- GC_analysis2(KO_region2[h,])
+        GC_avoid_region <- GC_analysis4(KO_region2[h,],Gene3)
         if (GC_avoid_region != FALSE) {
           GC_del <- numeric()
           for (i in 1:nrow(gRNA.table)) {
@@ -225,6 +225,7 @@ Get_gRNA2_planC <- function(KO_region2) {
         if (class(gRNA2_planC) == "NULL") {
           gRNA2_planC <- rbind(gRNA.table1[1, ], gRNA.table2[1, ])
         }
+        rm(Gene3)
       }
       
       # 长度够 ---------------------------------------------------------------------
@@ -496,7 +497,7 @@ Get_gRNA2_planC <- function(KO_region2) {
         }
         gRNA.table<-cbind(gRNA.table,crispr_score)
         #局部GC含量大于80%或小于25%，避免该区域
-        GC_avoid_region <- GC_analysis2(KO_region2[h,])
+        GC_avoid_region <- GC_analysis3(KO_region2[h,])
         if (GC_avoid_region != FALSE) {
           GC_del <- numeric()
           for (i in 1:nrow(gRNA.table)) {
@@ -556,25 +557,25 @@ Get_gRNA2_planC <- function(KO_region2) {
       else{
         if (gRNA2_planC[1, ]$strand == "rev" & gRNA2_planC[2, ]$strand == "fw") {
           if(gRNA2_planC[1,]$start>gRNA2_planC[2,]$start){
-            pos1 <- gRNA2_planC[1, ]$end
-            pos2 <- gRNA2_planC[2, ]$start
+            pos1 <- gRNA2_planC[1, ]$end-3
+            pos2 <- gRNA2_planC[2, ]$start+3
             KO_length <- abs(pos1 - pos2) +1
           }
           else{
-            pos1 <- gRNA2_planC[1, ]$end
-            pos2 <- gRNA2_planC[2, ]$start
+            pos1 <- gRNA2_planC[1, ]$end-3
+            pos2 <- gRNA2_planC[2, ]$start+3
             KO_length <- abs(pos1 - pos2) -1
           }
         }
         else{
           if(gRNA2_planC[1,]$start>gRNA2_planC[2,]$start){
-            pos1 <- gRNA2_planC[1, ]$start
-            pos2 <- gRNA2_planC[2, ]$end
+            pos1 <- gRNA2_planC[1, ]$start+3
+            pos2 <- gRNA2_planC[2, ]$end-3
             KO_length <- abs(pos1 - pos2) - 1
           }
           else{
-            pos1 <- gRNA2_planC[1, ]$start
-            pos2 <- gRNA2_planC[2, ]$end
+            pos1 <- gRNA2_planC[1, ]$start+3
+            pos2 <- gRNA2_planC[2, ]$end-3
             KO_length <- abs(pos1 - pos2) + 1
           }
         }
@@ -588,21 +589,37 @@ Get_gRNA2_planC <- function(KO_region2) {
       }
       else{
         if (gRNA2_planC[1, ]$strand == "rev" & gRNA2_planC[2, ]$strand == "fw") {
-          pos1 <- gRNA2_planC[1, ]$start
-          pos2 <- gRNA2_planC[2, ]$end
+          pos1 <- gRNA2_planC[1, ]$start+3
+          pos2 <- gRNA2_planC[2, ]$end-3
           KO_length <- abs(pos1 - pos2-1) 
         }
         else{
-          pos1 <- gRNA2_planC[1, ]$end
-          pos2 <- gRNA2_planC[2, ]$start
+          pos1 <- gRNA2_planC[1, ]$end-3
+          pos2 <- gRNA2_planC[2, ]$start+3
           KO_length <- abs(pos1 - pos2+1) 
         }
       }
     }
     #敲除的CDS
     KO_length_CDS <- KO_region2[h,]$Exon_length
+    
+    if(exists("Gene3") == TRUE){
+      
+      t_Exon_CDS3 <-
+        t_Exon_CDS[which(t_Exon_CDS$start +1200 >= min(gRNA2_planC$start) &
+                           t_Exon_CDS$end  +1200 <= max(gRNA2_planC$end)), ]
+      which_ko2 <- t_Exon_CDS3$Exon
+    }
+    else{
+      t_Exon_CDS3 <-
+        t_Exon_CDS[which(t_Exon_CDS$start >= min(gRNA2_planC$start) &
+                           t_Exon_CDS$end <= max(gRNA2_planC$end)), ]
+      which_ko2 <- t_Exon_CDS3$Exon
+    }
+    
     gRNA2_planC[1,8]<-KO_length
     gRNA2_planC[1,9]<-KO_length_CDS
+    gRNA2_planC[2,8]<-which_ko2
     return(gRNA2_planC)
   }
 }

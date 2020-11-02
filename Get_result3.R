@@ -15,18 +15,18 @@ Get_result3 <- function(gRNA.table) {
         else{
           if (gRNA1$strand == "rev" & gRNA2$strand == "fw") {
             if(gRNA1$start>gRNA2$start){
-              KO_length <- abs(gRNA1$end - gRNA2$start) +1
+              KO_length <- abs((gRNA1$end-3) - (gRNA2$start+3)) +1
             }
             else{
-              KO_length <- abs(gRNA1$end - gRNA2$start) -1
+              KO_length <- abs((gRNA1$end-3) - (gRNA2$start+3)) -1
             }
           }
           else{
             if(gRNA1$start>gRNA2$start){
-              KO_length <- abs(gRNA1$start - gRNA2$end) -1
+              KO_length <- abs((gRNA1$start+3) - (gRNA2$end-3)) -1
             }
             else{
-              KO_length <- abs(gRNA1$start - gRNA2$end) +1
+              KO_length <- abs((gRNA1$start+3) - (gRNA2$end-3)) +1
             }
           }
         }
@@ -39,13 +39,13 @@ Get_result3 <- function(gRNA.table) {
         }
         else{
           if (gRNA1$strand == "rev" & gRNA2$strand == "fw") {
-            pos1 <- gRNA1$start
-            pos2 <- gRNA2$end
+            pos1 <- gRNA1$start+3
+            pos2 <- gRNA2$end-3
             KO_length <- abs(pos1 - pos2-1) 
           }
           else{
-            pos1 <- gRNA1$end
-            pos2 <- gRNA2$start
+            pos1 <- gRNA1$end-3
+            pos2 <- gRNA2$start+3
             KO_length <- abs(pos1 - pos2+1) 
           }
         }

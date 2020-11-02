@@ -19,82 +19,10 @@ Get_dot_region2 <- function(KO_region) {
       return(TRUE)
       break
     }
-    # for (j in 1:length(pos)) {
-    #   if (pos[j] != -1) {
-    #     analysis_pos <- append(analysis_pos,pos[j])
-    #   }
-    # }
   }
   return(FALSE)
-  # analysis_pos <- sort(analysis_pos[!duplicated(analysis_pos)])
-  # analysis_frame <- data.frame()
-  # for (i in 1:length(analysis_pos)) {
-  #   analysis_frame[i, 1] <- analysis_pos[i] 
-  #   analysis_frame[i, 2] <- analysis_pos[i] + 9
-  # }
-  # times <- 0
-  # i <- 1
-  # j <- 1
-  # dot.rev_frame <- data.frame()
-  # repeat {
-  #   if (analysis_frame[i + 1, 1] == analysis_frame[i, 1]+1 ) {
-  #     times <- times + 1
-  #     if (times == 1) {
-  #       dot.rev_frame[j, 1] <- analysis_frame[i, 1]
-  #     }
-  #     i <- i + 1
-  #     if (i == length(analysis_frame[, 1])) {
-  #       dot.rev_frame[j, 2] <- analysis_frame[i, 2]
-  #       break
-  #     }
-  #   }
-  #   else{
-  #     if (times == 0) {
-  #       dot.rev_frame[j, 1] <- analysis_frame[i, 1]
-  #     }
-  #     dot.rev_frame[j, 2] <- analysis_frame[i , 2]
-  #     i <- i + 1
-  #     if (i == length(analysis_frame[, 1])) {
-  #       j <- j + 1
-  #       dot.rev_frame[j, 1] <- analysis_frame[i, 1]
-  #       dot.rev_frame[j, 2] <- analysis_frame[i, 2]
-  #       break
-  #     }
-  #     times <- 0
-  #     j <- j + 1
-  #   }
-  # }
-  # dot.rev_frame[, 1] <-dot.rev_frame[, 1] + KO_region$start - 900 - 1
-  # dot.rev_frame[, 2] <-dot.rev_frame[, 2] + KO_region$start - 900 - 1
-  # names(dot.rev_frame) <- c("start", "end")
-  # length<-dot.rev_frame$end-dot.rev_frame$start+1
-  # dot.rev_frame<-cbind(dot.rev_frame,length)
-  # #print(dot.rev_frame)
-  # dot.rev_frame_100<-dot.rev_frame[which(dot.rev_frame$length>100),]
-  # if(nrow(dot.rev_frame_100)!=0){
-  #   return(TRUE)
-  #   break
-  # }
-  # return(FALSE)
-}
-#待定
-# dot.rev_frame_100[which(dot.rev_frame_100$start),]
-# 
-# #含有反向重复>100 bp的序列，且重复区域在靶位点邻近500 bp内，此区域弃用
-# dot.rev_frame_100<-dot.rev_frame[which(dot.rev_frame$length>100),]
-# if(nrow(dot.frame_100)!=0){
-#   for(i in 1:nrow(dot.rev_frame_100)){
-#     if(dot.rev_frame_100[i,]$start<KO_region$end & dot.rev_frame_100[i,]$end>KO_region$start-500){
-#       return(TRUE)
-#       break
-#     }
-#     else if(dot.rev_frame_100[i,]$end>KO_region$start & dot.rev_frame_100[i,]$start<KO_region$end+500){
-#       return(TRUE)
-#       break
-#     }
-#   }
-# }
 
+}
 
 
 

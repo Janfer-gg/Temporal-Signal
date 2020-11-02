@@ -74,7 +74,7 @@ GC_analysis2 <- function(KO_region) {
         avoid_district[j, 2] <- GC_avoid_region[i , 2]
         i <- i + 1
         if (i == length(GC_avoid_region[, 1])) {
-          void_district[j, 2] <- GC_avoid_region[i-1, 2]
+          avoid_district[j, 2] <- GC_avoid_region[i-1, 2]
           j<-j+1
           avoid_district[j,1] <-GC_avoid_region[i,1]
           avoid_district[j,2]<-GC_avoid_region[i,2]

@@ -1,6 +1,6 @@
 setwd("C://Users//41518//Desktop//work/ubigene")
 #创建文件夹
-filepath<-"C://Users//41518//Desktop//0918测试//ANGPTL6"
+filepath<-"C://Users//41518//Desktop//靶位点测试3//GREM1"
 dir.create(filepath)
 library(ggplot2)
 library(ggimage)
@@ -9,9 +9,7 @@ library(ggpubr)
 library(httr)
 library(jsonlite)
 library(xml2)
-library(rvest)
 library(Biostrings)
-library(dplyr)
 library(reticulate)
 library(stringr)
 source("Get_ID.R")
@@ -41,9 +39,9 @@ source("Get_mark_region.R")
 source("dot_analysis_C.R")
 
 #进度条10%
-write.table("1",paste0(filepath,"//","10%.txt"),row.names = FALSE,col.names = FALSE)
+write.table("1",paste0(filepath,"//","C10%.txt"),row.names = FALSE,col.names = FALSE)
 
-term <- ("ANGPTL6")
+term <- ("GREM1")
 species<-"Human"
 ID <- Get_ID(term,species)
 
@@ -67,7 +65,7 @@ py$download_csv(filepath,ID)
 transcript.table <- read.csv(paste0(filepath,"//transcript.csv"),header = TRUE)
 
 #进度条20%
-write.table("1",paste0(filepath,"//","20%.txt"),row.names = FALSE,col.names = FALSE)
+write.table("1",paste0(filepath,"//","C20%.txt"),row.names = FALSE,col.names = FALSE)
 
 print("ensembl success")
 color_blue<-character()
@@ -85,9 +83,7 @@ transcript.table <-
   delete_noprotein(transcript.table)           #删除非编码蛋白和不完整的转录本
 transcript.count <- nrow(transcript.table)     #转录本数量
 
-if(transcript.count==0){
-  write.table("1",paste0(filepath,"//","no protein.txt"),row.names = FALSE,col.names = FALSE)
-}
+
 
 transcript.name <-
   transcript.table[which(transcript.table$bp == max(transcript.table$bp)), ]$Name[1]     #最长的转录本
@@ -194,8 +190,10 @@ KO_region2 <- KO_longregion(t_Exon_CDS)
 
 #排序
 KO_region2<-rbind(KO_region2[which(KO_region2$end-KO_region2$start<=10000),],KO_region2[which(KO_region2$end-KO_region2$start>10000),])
-
 print(KO_region2)
+if(nrow(KO_region2)==0){
+  write.table("4",paste0(filepath,"//","result3.txt"),row.names = FALSE,col.names = FALSE)
+}
 
 if(nrow(KO_region2)!=0) {
   #如果与其他基因重叠
@@ -214,6 +212,9 @@ if(nrow(KO_region2)!=0) {
     if(length(avoid_ko_del)!=0){
       KO_region2 <- KO_region2[-avoid_ko_del, ]
     }
+    if(nrow(KO_region2)==0){
+      write.table("1",paste0(filepath,"//","result3.txt"),row.names = FALSE,col.names = FALSE)
+    }
   }
 }
 if(nrow(KO_region2)!=0) {
@@ -229,7 +230,11 @@ if(nrow(KO_region2)!=0) {
   if (length(GC_del) != 0) {
     KO_region2 <- KO_region2[-GC_del, ]
   }
+  if(nrow(KO_region2)==0){
+    write.table("2",paste0(filepath,"//","result3.txt"),row.names = FALSE,col.names = FALSE)
+  }
 }
+
 if(nrow(KO_region2)!=0) {
   #点阵图分析
   dot_del <- numeric()
@@ -249,13 +254,15 @@ if(nrow(KO_region2)!=0) {
   if (length(dot_del) != 0) {
     KO_region2 <- KO_region2[-dot_del,]
   }
+  if(nrow(KO_region2)==0){
+    write.table("2",paste0(filepath,"//","result3.txt"),row.names = FALSE,col.names = FALSE)
+  }
 }
 print(KO_region2)
 #进度条60%
-write.table("1",paste0(filepath,"//","60%.txt"),row.names = FALSE,col.names = FALSE)
+write.table("1",paste0(filepath,"//","C60%.txt"),row.names = FALSE,col.names = FALSE)
 
 if (nrow(KO_region2) != 0) {
-
   for(t in 1:nrow(KO_region2)){
     # 长度不够 --------------------------------------------------------------------
     if(KO_region2[t,]$start<1200 | KO_region2[t,]$end+1200>nchar(Gene)){
@@ -523,7 +530,7 @@ if (nrow(KO_region2) != 0) {
         }
       }
       #局部GC含量大于80%或小于25%，避免该区域
-      GC_avoid_region <- GC_analysis4(KO_region2[t,])
+      GC_avoid_region <- GC_analysis4(KO_region2[t,],Gene3)
       if (GC_avoid_region != FALSE) {
         GC_del <- numeric()
         for (i in 1:nrow(gRNA.table)) {
@@ -976,7 +983,7 @@ if (nrow(KO_region2) != 0) {
 }
 
 #进度条90%
-write.table("8",paste0(filepath,"//","90%.txt"),row.names = FALSE,col.names = FALSE)
+write.table("8",paste0(filepath,"//","C90%.txt"),row.names = FALSE,col.names = FALSE)
 
 if (exists("gRNA_planC") == TRUE) {
   # 敲了哪些外显子 -----------------------------------------------------------------
@@ -1272,8 +1279,10 @@ if (exists("gRNA_planC") == TRUE) {
     dev.off()
   }
   else{
-    write.table("fail",paste0(filepath,"//","result3.txt"),row.names = FALSE,col.names = FALSE)
     print("fail")
+    if(nrow(KO_region2)!=0){
+      write.table("3",paste0(filepath,"//","result3.txt"),row.names = FALSE,col.names = FALSE)
+    }
   }
 }
 
@@ -1288,25 +1297,25 @@ if (exists("gRNA_planC") == TRUE) {
     else{
       if (gRNA_planC[1, ]$strand == "rev" & gRNA_planC[2, ]$strand == "fw") {
         if(gRNA_planC[1,]$start>gRNA_planC[2,]$start){
-          pos1 <- gRNA_planC[1, ]$end
-          pos2 <- gRNA_planC[2, ]$start
+          pos1 <- gRNA_planC[1, ]$end-3
+          pos2 <- gRNA_planC[2, ]$start+3
           KO_length <- abs(pos1 - pos2) +1
         }
         else{
-          pos1 <- gRNA_planC[1, ]$end
-          pos2 <- gRNA_planC[2, ]$start
+          pos1 <- gRNA_planC[1, ]$end-3
+          pos2 <- gRNA_planC[2, ]$start+3
           KO_length <- abs(pos1 - pos2) -1
         }
       }
       else{
         if(gRNA_planC[1,]$start>gRNA_planC[2,]$start){
-          pos1 <- gRNA_planC[1, ]$start
-          pos2 <- gRNA_planC[2, ]$end
+          pos1 <- gRNA_planC[1, ]$start+3
+          pos2 <- gRNA_planC[2, ]$end-3
           KO_length <- abs(pos1 - pos2) - 1
         }
         else{
-          pos1 <- gRNA_planC[1, ]$start
-          pos2 <- gRNA_planC[2, ]$end
+          pos1 <- gRNA_planC[1, ]$start+3
+          pos2 <- gRNA_planC[2, ]$end-3
           KO_length <- abs(pos1 - pos2) + 1
         }
       }
@@ -1320,13 +1329,13 @@ if (exists("gRNA_planC") == TRUE) {
     }
     else{
       if (gRNA_planC[1, ]$strand == "rev" & gRNA_planC[2, ]$strand == "fw") {
-        pos1 <- gRNA_planC[1, ]$start
-        pos2 <- gRNA_planC[2, ]$end
+        pos1 <- gRNA_planC[1, ]$start+3
+        pos2 <- gRNA_planC[2, ]$end-3
         KO_length <- abs(pos1 - pos2-1)
       }
       else{
-        pos1 <- gRNA_planC[1, ]$end
-        pos2 <- gRNA_planC[2, ]$start
+        pos1 <- gRNA_planC[1, ]$end-3
+        pos2 <- gRNA_planC[2, ]$start+3
         KO_length <- abs(pos1 - pos2+1)
       }
     }
@@ -1344,25 +1353,25 @@ if (exists("gRNA_planC") == TRUE) {
         else{
           if (gRNA2_planC[1,]$strand == "rev" & gRNA2_planC[2,]$strand == "fw") {
             if(gRNA2_planC[1,]$start>gRNA2_planC[1,]$start){
-              pos1 <- gRNA2_planC[1,]$end
-              pos2 <- gRNA2_planC[2,]$start
+              pos1 <- gRNA2_planC[1,]$end-3
+              pos2 <- gRNA2_planC[2,]$start+3
               KO_length2 <- abs(pos1 - pos2) +1
             }
             else{
-              pos1 <- gRNA2_planC[1,]$end
-              pos2 <- gRNA2_planC[2,]$start
+              pos1 <- gRNA2_planC[1,]$end-3
+              pos2 <- gRNA2_planC[2,]$start+3
               KO_length2 <- abs(pos1 - pos2) -1
             }
           }
           else{
             if(gRNA2_planC[1,]$start>gRNA2_planC[2,]$start){
-              pos1 <- gRNA2_planC[1, ]$start
-              pos2 <- gRNA2_planC[2, ]$end
+              pos1 <- gRNA2_planC[1, ]$start+3
+              pos2 <- gRNA2_planC[2, ]$end-3
               KO_length2 <- abs(pos1 - pos2) - 1
             }
             else{
-              pos1 <- gRNA2_planC[1, ]$start
-              pos2 <- gRNA2_planC[2, ]$end
+              pos1 <- gRNA2_planC[1, ]$start+3
+              pos2 <- gRNA2_planC[2, ]$end-3
               KO_length2 <- abs(pos1 - pos2) + 1
             }
           }
@@ -1376,19 +1385,20 @@ if (exists("gRNA_planC") == TRUE) {
         }
         else{
           if (gRNA2_planC[1,]$strand == "rev" & gRNA2_planC[2,]$strand == "fw") {
-            pos1 <- gRNA2_planC[1,]$start
-            pos2 <- gRNA2_planC[2,]$end
+            pos1 <- gRNA2_planC[1,]$start+3
+            pos2 <- gRNA2_planC[2,]$end-3
             KO_length2 <- abs(pos1 - pos2-1)
           }
           else{
-            pos1 <- gRNA2_planC[1,]$end
-            pos2 <- gRNA2_planC[2,]$start
+            pos1 <- gRNA2_planC[1,]$end-3
+            pos2 <- gRNA2_planC[2,]$start+3
             KO_length2 <- abs(pos1 - pos2+1)
           }
         }
       }
       #敲除的CDS
       KO_length_CDS2 <- KO_region2[t,]$Exon_length
+      mark<-"FALSE"
     }
     
     else{
@@ -1399,6 +1409,7 @@ if (exists("gRNA_planC") == TRUE) {
 }
 if(exists("gRNA2_planC")==TRUE){
   if(class(gRNA2_planC)=="NULL"){
+    rm(mark)
     rm(gRNA2_planC)
   }
 }
@@ -1412,7 +1423,8 @@ if (exists("gRNA_planC") == TRUE) {
                        incomplete_transcript=character(),transcript=character(),Exon_count=numeric(),
                        start_condon=character(),stop_condon=character(),ko_condon=character(),
                        overlap1=character(),overlap2=character(),tip1=character(),
-                       tip2=character(),tip3=character(),tip4=character(),GC1=numeric(),GC2=numeric())
+                       tip2=character(),tip3=character(),tip4=character(),GC1=numeric(),GC2=numeric(),
+                       mark=character(),ko_condon2=character(),species=character())
   output[1, 1] <- term
   output[1, 2] <- gRNA_planC[1,]$analysis_seq
   output[1, 3] <- gRNA_planC[1,]$strand
@@ -1424,6 +1436,7 @@ if (exists("gRNA_planC") == TRUE) {
   output[1, 9] <- gRNA_planC[2,]$crispr_score
   output[1, 10] <- KO_length
   output[1, 11] <- KO_length_CDS
+  output[1, 38] <- species
   #有没有重叠的lncRNA,microRNA...
   if(nrow(mark_region)!=0){
     for(j in 1:nrow(mark_region)){
@@ -1445,14 +1458,16 @@ if (exists("gRNA_planC") == TRUE) {
     output[1, 17] <- gRNA2_planC[2,]$strand
     output[1, 18] <- gRNA2_planC[2,]$Score1
     output[1, 19] <- gRNA2_planC[2,]$crispr_score
-    if(exists("mark")==TRUE){
+    if(mark=="TRUE"){
       output[1, 20] <- gRNA2_planC[1,8]
       output[1, 21] <- gRNA2_planC[1,9]
+      output[1, 37] <- gRNA2_planC[2,8]
     }
-    else if(exists("mark")==FALSE){
+    else if(mark=="FALSE"){
       output[1, 20] <- KO_length2
       output[1, 21] <- KO_length_CDS2
     }
+    output[1, 36]<-mark
     #有没有重叠的lncRNA,microRNA...
     if(nrow(mark_region)!=0){
       for(j in 1:nrow(mark_region)){
@@ -1466,6 +1481,7 @@ if (exists("gRNA_planC") == TRUE) {
       output[1, 29] <- overlap2
     }
   }
+  
   output[1, 22] <- paste(incomplete.transcript,collapse = ",")
   output[1, 23] <- transcript.name
   output[1, 24] <- nrow(t_Exon_region)
@@ -1522,6 +1538,7 @@ if (exists("gRNA_planC") == TRUE) {
   output[1, 33] <- tip4
   output[1, 34] <- round(GC1*100,2)
   output[1, 35] <- round(GC2*100,2)
+  
   
   png(file = paste0(filepath,"//","Lattice and diagram3.png"),width = 480*3,height = 480*3,res = 72*3)
   print(p3)

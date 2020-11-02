@@ -40,8 +40,9 @@ KO_region_image3 <- function(Gene, allinfo) {
   transcript.pos$y<-transcript.pos2$y
   
   
-  for (i in 1:length(allinfo$Transcript))
-  {
+  Exon_data<-data.frame(start=numeric(),end=numeric(),y=numeric(),fill=character(),color=character())
+  p<-1
+  for (i in 1:length(allinfo$Transcript)){
     Transcript <- allinfo$Transcript[[i]]                #转录本
     {
       if (Transcript$display_name %in% color_blue) {
@@ -63,7 +64,7 @@ KO_region_image3 <- function(Gene, allinfo) {
     if(y<(-21)){
       next
     }
-    ff <- data.frame(x = c(transcript.pos[i,]$start:transcript.pos[i,]$end),y = y)
+    ff <- data.frame(x = c(transcript.pos[i,]$start,transcript.pos[i,]$end),y = y)
     {
       if (Gene_rev) {
         label <- paste0(Transcript$display_name, "<")
@@ -76,85 +77,92 @@ KO_region_image3 <- function(Gene, allinfo) {
     p2 <-
       p2 + geom_line(data = ff,
                      aes(x = x, y = y),
-                     color ="#bdc4ca",
-      ) + annotate(
-        "text",
-        label = label,
-        x = transcript.pos[i,]$start,
-        y = y - 0.3,
-        size = 2,color=color,hjust = 0
-      )
+                     color = "#bdc4ca", ) + annotate(
+                       "text",
+                       label = label,
+                       x = transcript.pos[i, ]$start,
+                       y = y - 0.3,
+                       size = 2,
+                       color = color,
+                       hjust = 0
+                     )
     
     #外显子框
-    for (j in 1:length(Transcript$Exon))
-    {
+    for (j in 1:length(Transcript$Exon)){
       Exon_start <- Transcript$Exon[[j]]$start - start + 1   #外显子起始位置
       Exon_end <-
         Transcript$Exon[[j]]$end - start + 1       #外显子终止位置
-      p2 <-
-        p2 + annotate(
-          "rect",
-          xmin = Exon_start,
-          xmax = Exon_end,
-          ymin = y - 0.1,
-          ymax = y + 0.1,
-          col = color,
-          alpha = .0
-        )
+      
+      Exon_data[p,]$start<-Exon_start
+      Exon_data[p,]$end<-Exon_end
+      Exon_data[p,]$y<-y
+      Exon_data[p,]$fill<-0
+      Exon_data[p,]$color<-color
+      p<-p+1
+      
       #完全在编码区
       if (length(CDS_start) != 0 & length(CDS_end != 0)) {
         if (Exon_start >= CDS_start & Exon_end <= CDS_end) {
-          p2 <-
-            p2 + annotate(
-              "rect",
-              xmin = Exon_start,
-              xmax = Exon_end,
-              ymin = y - 0.1,
-              ymax = y + 0.1,
-              fill = color
-            )
+          Exon_data[p,]$start<-Exon_start
+          Exon_data[p,]$end<-Exon_end
+          Exon_data[p,]$y<-y
+          Exon_data[p,]$fill<-color
+          p<-p+1
         }
         #部分在编码区(上游)
         else if (Exon_start <= CDS_start &
                  Exon_end >= CDS_start & Exon_end <= CDS_end) {
-          p2 <-
-            p2 + annotate(
-              "rect",
-              xmin = CDS_start,
-              xmax = Exon_end,
-              ymin = y - 0.1,
-              ymax = y + 0.1,
-              fill = color
-            )
+          Exon_data[p,]$start<-CDS_start
+          Exon_data[p,]$end<-Exon_end
+          Exon_data[p,]$y<-y
+          Exon_data[p,]$fill<-color
+          p<-p+1
         }
+        
         #部分在编码区(下游)
         else if (Exon_start >= CDS_start &
                  Exon_start <= CDS_end & Exon_end >= CDS_end) {
-          p2 <-
-            p2 + annotate(
-              "rect",
-              xmin = Exon_start,
-              xmax = CDS_end,
-              ymin = y - 0.1,
-              ymax = y + 0.1,
-              fill = color
-            )
+          Exon_data[p,]$start<-Exon_start
+          Exon_data[p,]$end<-CDS_end
+          Exon_data[p,]$y<-y
+          Exon_data[p,]$fill<-color
+          p<-p+1
+          
         }
         #部分在编码区(中间)
         else if (Exon_start<CDS_start & Exon_end>CDS_start &Exon_end>CDS_end){
-          p2 <-
-            p2 + annotate(
-              "rect",
-              xmin = CDS_start,
-              xmax = CDS_end,
-              ymin = y - 0.1,
-              ymax = y + 0.1,
-              fill = color
-            )
+          Exon_data[p,]$start<-CDS_start
+          Exon_data[p,]$end<-CDS_end
+          Exon_data[p,]$y<-y
+          Exon_data[p,]$fill<-color
+          p<-p+1
         }
+        
       }
     }
   }
+  
+  Exon_data1<-Exon_data[which(Exon_data$fill==0),]
+  Exon_data2<-Exon_data[which(Exon_data$fill!=0),]
+  p2 <-
+    p2 + annotate(
+      "rect",
+      xmin = Exon_data1$start,
+      xmax = Exon_data1$end,
+      ymin = Exon_data1$y - 0.1,
+      ymax = Exon_data1$y + 0.1,
+      color=Exon_data1$color,
+      alpha=.0
+    )
+  p2 <-
+    p2 + annotate(
+      "rect",
+      xmin = Exon_data2$start,
+      xmax = Exon_data2$end,
+      ymin = Exon_data2$y - 0.1,
+      ymax = Exon_data2$y + 0.1,
+      fill = Exon_data2$fill,
+    )
   #调用KO_region
   {
     if (exists("Gene3")) {

@@ -105,10 +105,3 @@ Get_dot_region1 <- function(KO_region) {
   }
   return(FALSE)
 }
-
-
-
-
-
-
-

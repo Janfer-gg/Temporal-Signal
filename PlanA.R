@@ -1,6 +1,6 @@
 setwd("C://Users//41518//Desktop//work/ubigene")
 #创建文件夹
-filepath<-"C://Users//41518//Desktop//0918测试//ANXA6"
+filepath<-"C://Users//41518//Desktop//靶位点测试3//GREM1"
 dir.create(filepath)
 library(ggplot2)
 library(ggimage)
@@ -9,9 +9,7 @@ library(ggpubr)
 library(httr)
 library(jsonlite)
 library(xml2)
-library(rvest)
 library(Biostrings)
-library(dplyr)
 library(reticulate)
 library(stringr)
 source("Get_ID.R")
@@ -41,11 +39,12 @@ source("dot_analysis.R")
 
 
 #进度条10%
-write.table("1",paste0(filepath,"//","10%.txt"),row.names = FALSE,col.names = FALSE)
+write.table("1",paste0(filepath,"//","A10%.txt"),row.names = FALSE,col.names = FALSE)
 
-term <- ("ANXA6")
+term <- ("GREM1")
 species<-"Human"
 ID <- Get_ID(term,species)
+
 
 # 获取信息 --------------------------------------------------------------------
 Gene <- Get_seq(ID)                    #基因序列
@@ -71,7 +70,7 @@ transcript.table <- read.csv(paste0(filepath,"//transcript.csv"),header = TRUE)
 print("ensembl success")
 
 #进度条20%
-write.table("1",paste0(filepath,"//","20%.txt"),row.names = FALSE,col.names = FALSE)
+write.table("1",paste0(filepath,"//","A20%.txt"),row.names = FALSE,col.names = FALSE)
 
 color_blue<-character()
 incomplete.transcript<-character()
@@ -343,8 +342,7 @@ if(nrow(KO_region)!=0){
         }
         ko_end <- t_Exon_region_sort[j + 1, ]$Exon_end + 500
         Exon_length[i] <-
-          Exon_length[i] + t_Exon_region_sort[j + 1, ]$Exon_end - t_Exon_region_sort[j + 1, ]$Exon_start +
-          1
+          Exon_length[i] + t_Exon_region_sort[j + 1, ]$Exon_end - t_Exon_region_sort[j + 1, ]$Exon_start +1
         j <- j + 1
         if (j == nrow(t_Exon_region_sort)) {
           break
@@ -381,7 +379,7 @@ if(nrow(KO_region)!=0){
     KO_region[which(KO_region$Exon_length >= 100),]         #外显子不小于100bp
   
   if(nrow(Exon_300)!=0){
-    Exon_300 <- cbind(Exon_300, Exon_length_500)          #单个大于300bp的外显子
+    Exon_300 <- cbind(Exon_300, Exon_length_500)          #单个大于150bp的外显子
     names(Exon_300)[6] <- "Exon_length"
   }
   
@@ -409,8 +407,7 @@ if(nrow(KO_region)!=0){
   }
   
   #KO区域中包含了最后一个外显子时
-  if(nrow(KO_region_500)!=0)
-  {
+  if(nrow(KO_region_500)!=0){
     if (Gene_rev) {
       KO_region_500 <- KO_region_500[order(KO_region_500$start),]
       if(KO_region_500[1,]$start==t_Exon_region_sort[1,]$Exon_start){
@@ -421,7 +418,7 @@ if(nrow(KO_region)!=0){
       KO_region_500<- KO_region_500[order(-KO_region_500$end),]
       if(KO_region_500[1,]$end==t_Exon_region[nrow(t_Exon_region),]$Exon_end){
         KO_region_500[1,]$end<-t_Exon_CDS[nrow(t_Exon_CDS),]$end
-        KO_region_500[1,]$Exon_length<-KO_region_500[1,]$end-KO_region_500[1,]$start
+        KO_region_500[1,]$Exon_length<-sum((t_Exon_CDS[which(t_Exon_CDS$Exon==KO_region_500[1,]$Exon):nrow(t_Exon_CDS),]$end-t_Exon_CDS[which(t_Exon_CDS$Exon==KO_region_500[1,]$Exon):nrow(t_Exon_CDS),]$start+1))
       }
     }
   }
@@ -437,17 +434,46 @@ if(nrow(KO_region)!=0){
   KO_region <- rbind(KO_region_500, Exon_300)
 }
 
+# 
+# if(nrow(Exon_CDS)!=0){
+#   for (i in 1:nrow(Exon_CDS)) {
+#     if(Exon_CDS[i,]$transcript!=transcript.name){
+#       if(Exon_CDS[i,]$start %in% t_Exon_CDS$start){
+#         Exon_CDS[i,]$end<-t_Exon_CDS[which(t_Exon_CDS$start==Exon_CDS[i,]$start),]$end
+#       }
+#       else if(Exon_CDS[i,]$end %in% t_Exon_CDS$end){
+#         Exon_CDS[i,]$start<-t_Exon_CDS[which(t_Exon_CDS$end==Exon_CDS[i,]$end),]$start
+#       }
+#     }
+#   }
+# }
 
+#其他转录本的ATG所在外显子与参考转录本不重叠
 if(nrow(Exon_CDS)!=0){
-  for (i in 1:nrow(Exon_CDS)) {
-    if(Exon_CDS[i,]$transcript!=transcript.name){
-      if(Exon_CDS[i,]$start %in% t_Exon_CDS$start){
-        Exon_CDS[i,]$end<-t_Exon_CDS[which(t_Exon_CDS$start==Exon_CDS[i,]$start),]$end
+  del<-numeric()
+  for(i in 1:nrow(Exon_CDS)){
+    times<-0
+    for(j in 1:nrow(t_Exon_CDS)){
+      if(Exon_CDS[i,]$start %in% c(t_Exon_CDS[j,]$start:t_Exon_CDS[j,]$end)){
+        if(Exon_CDS[i,]$end>t_Exon_CDS[j,]$end){
+          Exon_CDS[i,]$end<-t_Exon_CDS[j,]$end
+        }
       }
-      else if(Exon_CDS[i,]$end %in% t_Exon_CDS$end){
-        Exon_CDS[i,]$start<-t_Exon_CDS[which(t_Exon_CDS$end==Exon_CDS[i,]$end),]$start
+      else if(Exon_CDS[i,]$end %in% c(t_Exon_CDS[j,]$start:t_Exon_CDS[j,]$end)){
+        if(Exon_CDS[i,]$start<t_Exon_CDS[j,]$start){
+          Exon_CDS[i,]$start<-t_Exon_CDS[j,]$start
+        }
+      }
+      else{
+        times<-times+1
       }
     }
+    if(times==nrow(t_Exon_CDS)){
+      del<-append(del,i)
+    }
+  }
+  if(length(del)!=0){
+    Exon_CDS<-Exon_CDS[-del,]
   }
 }
 
@@ -495,6 +521,9 @@ if(nrow(KO_region)!=0){
   }
 }
 
+if(nrow(KO_region)==0){
+  write.table("4",paste0(filepath,"//","result1.txt"),row.names = FALSE,col.names = FALSE)
+}
 
 if(nrow(KO_region)!=0) {
   #如果与其他基因重叠
@@ -513,6 +542,9 @@ if(nrow(KO_region)!=0) {
     if(length(avoid_ko_del)!=0){
       KO_region <- KO_region[-avoid_ko_del, ]
     }
+    if(nrow(KO_region)==0){
+      write.table("1",paste0(filepath,"//","result1.txt"),row.names = FALSE,col.names = FALSE)
+    }
   }
 }
   
@@ -528,6 +560,9 @@ if(nrow(KO_region)!=0) {
   }
   if (length(GC_del) != 0) {
     KO_region <- KO_region[-GC_del, ]
+  }
+  if(nrow(KO_region)==0){
+    write.table("2",paste0(filepath,"//","result1.txt"),row.names = FALSE,col.names = FALSE)
   }
 }
   
@@ -546,14 +581,14 @@ if(nrow(KO_region)!=0) {
   }
   if (length(dot_del) != 0) {
     KO_region <- KO_region[-dot_del,]
-    if(nrow(KO_region)==0){
-      write.table("1",paste0(filepath,"//","complex.txt"),row.names = FALSE,col.names = FALSE)
-    }
+  }
+  if(nrow(KO_region)==0){
+    write.table("2",paste0(filepath,"//","result1.txt"),row.names = FALSE,col.names = FALSE)
   }
 }
 
 #进度条60%
-write.table("1",paste0(filepath,"//","60%.txt"),row.names = FALSE,col.names = FALSE)
+write.table("1",paste0(filepath,"//","A60%.txt"),row.names = FALSE,col.names = FALSE)
 print(KO_region)
 
 # gRNA设计方案 ----------------------------------------------------------------
@@ -756,8 +791,8 @@ if (nrow(KO_region) != 0) {
         }
         if (exists("gRNA") == TRUE) {
           if (KO_region[t, ]$times != transcript.count) {
-            No.transcript <-
-              ko.data[which(ko.data$end == KO_region[t,]$end),]$transcript
+            No.transcript <-ko.data[which(ko.data$start <= min(gRNA$start) & 
+                                            ko.data$end >= max(gRNA$end)),]$transcript
             which.transcript <-
               transcript.table$Name %in% No.transcript
             Not_KO_transcript <-
@@ -1121,9 +1156,8 @@ if (nrow(KO_region) != 0) {
           
           if (exists("gRNA") == TRUE) {
             if (KO_region[t,]$times != transcript.count) {
-              No.transcript <-
-                ko.data[which(ko.data$start == KO_region[t, ]$start &
-                                ko.data$end == KO_region[t, ]$end), ]$transcript
+              No.transcript <-ko.data[which(ko.data$start >= min(gRNA$start) &
+                                ko.data$end <= max(gRNA$end)), ]$transcript
               which.transcript <-
                 transcript.table$Name %in% No.transcript
               Not_KO_transcript <-
@@ -1342,8 +1376,8 @@ if (nrow(KO_region) != 0) {
         
         if (exists("gRNA") == TRUE) {
           if (KO_region[t, ]$times != transcript.count) {
-            No.transcript <-
-              ko.data[which(ko.data$start == KO_region[t,]$start),]$transcript
+            No.transcript <-ko.data[which(ko.data$start <= min(gRNA$start) & 
+                              ko.data$end >= max(gRNA$end)),]$transcript
             which.transcript <-
               transcript.table$Name %in% No.transcript
             Not_KO_transcript <-
@@ -1619,8 +1653,8 @@ if (exists("gRNA") == FALSE) {
         
         if (exists("gRNA") == TRUE) {
           if (KO_region3[a, ]$times != transcript.count) {
-            No.transcript <-
-              ko.data[which(ko.data$start == KO_region3[a, ]$start),]$transcript
+            No.transcript <-ko.data[which(ko.data$start >= min(gRNA$start) &
+                                            ko.data$end <= max(gRNA$end)), ]$transcript
             which.transcript <-
               transcript.table$Name %in% No.transcript
             Not_KO_transcript <-
@@ -1870,9 +1904,9 @@ if (exists("gRNA") == FALSE) {
                       ),]
                     #上下游分开
                     gRNA.table1_2 <-
-                      gRNA.table_3[which(gRNA.table_3$end <= KO_region[t, ]$start), ]
+                      gRNA.table_3[which(gRNA.table_3$end <= KO_region_all$start), ]
                     gRNA.table2_2 <-
-                      gRNA.table_3[which(gRNA.table_3$start >= KO_region[t, ]$end), ]
+                      gRNA.table_3[which(gRNA.table_3$start >= KO_region_all$end), ]
                     {
                       if (nrow(gRNA.table1_2) != 0 & nrow(gRNA.table2_2) != 0) {
                         #相差0.05分以内优选
@@ -1901,7 +1935,7 @@ if (exists("gRNA") == FALSE) {
 }
 
 #进度条90%
-write.table("1",paste0(filepath,"//","90%.txt"),row.names = FALSE,col.names = FALSE)
+write.table("1",paste0(filepath,"//","A90%.txt"),row.names = FALSE,col.names = FALSE)
 
 if(exists("judge4")){
   gRNA$start<-gRNA$start-500
@@ -2175,7 +2209,9 @@ if (exists("gRNA") == TRUE) {
   
   else{
     print("fail")
-    write.table("fail",paste0(filepath,"//","result1.txt"),row.names = FALSE,col.names = FALSE)
+    if(nrow(KO_region)!=0 | exists("gRNA.table")){
+      write.table("3",paste0(filepath,"//","result1.txt"),row.names = FALSE,col.names = FALSE)
+    }
   }
 }
 
@@ -2191,25 +2227,26 @@ if (exists("gRNA") == TRUE) {
     else{
       if (gRNA[1, ]$strand == "rev" & gRNA[2, ]$strand == "fw") {
         if(gRNA[1,]$start>gRNA[2,]$start){
-          pos1 <- gRNA[1, ]$end
-          pos2 <- gRNA[2, ]$start
+          pos1 <- gRNA[1, ]$end-3
+          pos2 <- gRNA[2, ]$start+3
           KO_length <- abs(pos1 - pos2) +1
         }
         else{
-          pos1 <- gRNA[1, ]$end
-          pos2 <- gRNA[2, ]$start
+          pos1 <- gRNA[1, ]$end-3
+          pos2 <- gRNA[2, ]$start+3
           KO_length <- abs(pos1 - pos2) -1
         }
       }
       else{
         if(gRNA[1,]$start>gRNA[2,]$start){
-          pos1 <- gRNA[1, ]$start
-          pos2 <- gRNA[2, ]$end
+          pos1 <- gRNA[1, ]$start+3
+          pos2 <- gRNA[2, ]$end-3
           KO_length <- abs(pos1 - pos2) - 1
         }
+        #正确
         else{
-          pos1 <- gRNA[1, ]$start
-          pos2 <- gRNA[2, ]$end
+          pos1 <- gRNA[1, ]$start+3
+          pos2 <- gRNA[2, ]$end-3
           KO_length <- abs(pos1 - pos2) + 1
         }
       }
@@ -2223,13 +2260,13 @@ if (exists("gRNA") == TRUE) {
     }
     else{
       if (gRNA[1, ]$strand == "rev" & gRNA[2, ]$strand == "fw") {
-        pos1 <- gRNA[1, ]$start
-        pos2 <- gRNA[2, ]$end
+        pos1 <- gRNA[1, ]$start+3
+        pos2 <- gRNA[2, ]$end-3
         KO_length <- abs(pos1 - pos2-1) 
       }
       else{
-        pos1 <- gRNA[1, ]$end
-        pos2 <- gRNA[2, ]$start
+        pos1 <- gRNA[1, ]$end-3
+        pos2 <- gRNA[2, ]$start+3
         KO_length <- abs(pos1 - pos2+1) 
       }
     }
@@ -2259,25 +2296,25 @@ if (exists("gRNA") == TRUE) {
         else{
           if (gRNA2[1,]$strand == "rev" & gRNA2[2,]$strand == "fw") {
             if(gRNA2[1,]$start>gRNA2[2,]$start){
-              pos1 <- gRNA2[1,]$end
-              pos2 <- gRNA2[2,]$start
+              pos1 <- gRNA2[1,]$end-3
+              pos2 <- gRNA2[2,]$start+3
               KO_length2 <- abs(pos1 - pos2) +1
             }
             else{
-              pos1 <- gRNA2[1,]$end
-              pos2 <- gRNA2[2,]$start
+              pos1 <- gRNA2[1,]$end-3
+              pos2 <- gRNA2[2,]$start+3
               KO_length2 <- abs(pos1 - pos2) -1
             }
           }
           else{
             if(gRNA2[1,]$start>gRNA2[2,]$start){
-              pos1 <- gRNA2[1, ]$start
-              pos2 <- gRNA2[2, ]$end
+              pos1 <- gRNA2[1, ]$start+3
+              pos2 <- gRNA2[2, ]$end-3
               KO_length2 <- abs(pos1 - pos2) - 1
             }
             else{
-              pos1 <- gRNA2[1, ]$start
-              pos2 <- gRNA2[2, ]$end
+              pos1 <- gRNA2[1, ]$start+3
+              pos2 <- gRNA2[2, ]$end-3
               KO_length2 <- abs(pos1 - pos2) + 1
             }
           }
@@ -2291,13 +2328,13 @@ if (exists("gRNA") == TRUE) {
         }
         else{
           if (gRNA2[1,]$strand == "rev" & gRNA2[2,]$strand == "fw") {
-            pos1 <- gRNA2[1,]$start
-            pos2 <- gRNA2[2,]$end
+            pos1 <- gRNA2[1,]$start+3
+            pos2 <- gRNA2[2,]$end-3
             KO_length2 <- abs(pos1 - pos2-1) 
           }
           else{
-            pos1 <- gRNA2[1,]$end
-            pos2 <- gRNA2[2,]$start
+            pos1 <- gRNA2[1,]$end-3
+            pos2 <- gRNA2[2,]$start+3
             KO_length2 <- abs(pos1 - pos2+1) 
           }
         }
@@ -2316,6 +2353,7 @@ if (exists("gRNA") == TRUE) {
       else{
         KO_length_CDS2 <- KO_length2
       }
+      mark<-"FALSE"
     }
     
     else{
@@ -2326,6 +2364,7 @@ if (exists("gRNA") == TRUE) {
 }
 if(exists("gRNA2")==TRUE){
   if(class(gRNA2)=="NULL"){
+    rm(mark)
     rm(gRNA2)
   }
 }
@@ -2337,7 +2376,8 @@ if (exists("gRNA") == TRUE) {
                        gRNA4=character(),strand4=character(),score4_1=numeric(),score4_2=numeric(),region2=numeric(),cds2=numeric(),
                        incomplete_transcript=character(),transcript=character(),Exon_count=numeric(),
                        start_condon=character(),stop_condon=character(),ko_condon=character(),Not_KO_transcript=character(),
-                       overlap1=character(),overlap2=character(),tip1=character(),tip2=character(),GC=numeric())
+                       overlap1=character(),overlap2=character(),tip1=character(),tip2=character(),GC=numeric(),
+                       mark=character(),ko_condon2=character(),species=character())
   output[1, 1] <- term
   output[1, 2] <- gRNA[1,]$analysis_seq
   output[1, 3] <- gRNA[1,]$strand
@@ -2349,6 +2389,7 @@ if (exists("gRNA") == TRUE) {
   output[1, 9] <- gRNA[2,]$crispr_score
   output[1, 10] <- KO_length
   output[1, 11] <- KO_length_CDS
+  output[1, 36] <- species
   #有没有重叠的lncRNA,microRNA...
   if(nrow(mark_region)!=0){
     for(j in 1:nrow(mark_region)){
@@ -2371,14 +2412,16 @@ if (exists("gRNA") == TRUE) {
     output[1, 17] <- gRNA2[2,]$strand
     output[1, 18] <- gRNA2[2,]$Score1
     output[1, 19] <- gRNA2[2,]$crispr_score
-    if(exists("mark")==TRUE){
+    if(mark=="TRUE"){
       output[1, 20] <- gRNA2[1,8]
       output[1, 21] <- gRNA2[2,8]
+      output[1, 35] <- gRNA2[1,9]
     }
-    else if(exists("mark")==FALSE){
+    else if(mark=="FALSE"){
       output[1, 20] <- KO_length2
       output[1, 21] <- KO_length_CDS2
     }
+    output[1, 34] <- mark
     #有没有重叠的lncRNA,microRNA...
     if(nrow(mark_region)!=0){
       for(j in 1:nrow(mark_region)){

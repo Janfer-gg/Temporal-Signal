@@ -168,7 +168,9 @@ KO_longregion <- function(t_Exon_CDS) {
                 # if (KO_region4$start == t_Exon_CDS_sort[1, ]$Exon_start) {
                 #   KO_region4$start <- t_Exon_CDS[nrow(t_Exon_CDS), ]$start
                 # }
-                return(KO_region4)
+                if(KO_region4$Exon_length>=3000){
+                  return(KO_region4)
+                }
               }
             }
             
@@ -214,7 +216,9 @@ KO_longregion <- function(t_Exon_CDS) {
                 # if (KO_region4$end == t_Exon_region[nrow(t_Exon_region), ]$end) {
                 #   KO_region4$end <- t_Exon_CDS[nrow(t_Exon_CDS), ]$end
                 # }
-                return(KO_region4)
+                if(KO_region4$Exon_length>=3000){
+                  return(KO_region4)
+                }
               }
             }
             

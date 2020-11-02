@@ -117,7 +117,7 @@ GC_analysis3 <- function(KO_region) {
 }
 
 #GC含量分析,连续50bp大于80%或小于25%的区域
-GC_analysis4 <- function(KO_region) {
+GC_analysis4 <- function(KO_region,Gene3) {
   k <- 1
   GC_avoid_region <- data.frame(start = numeric(), end = numeric())
   analysis_seq <-substring(Gene3, KO_region$start - 800, KO_region$end + 800)

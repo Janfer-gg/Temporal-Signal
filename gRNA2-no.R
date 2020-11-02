@@ -1050,25 +1050,25 @@ Get_gRNA2 <- function(KO_region) {
       else{
         if (gRNA2[1,]$strand == "rev" & gRNA2[2,]$strand == "fw") {
           if (gRNA2[1,]$start > gRNA2[2,]$start) {
-            pos1 <- gRNA2[1,]$end
-            pos2 <- gRNA2[2,]$start
+            pos1 <- gRNA2[1,]$end-3
+            pos2 <- gRNA2[2,]$start+3
             KO_length2 <- abs(pos1 - pos2) + 1
           }
           else{
-            pos1 <- gRNA2[1,]$end
-            pos2 <- gRNA2[2,]$start
+            pos1 <- gRNA2[1,]$end-3
+            pos2 <- gRNA2[2,]$start+3
             KO_length2 <- abs(pos1 - pos2) - 1
           }
         }
         else{
           if (gRNA2[1,]$start > gRNA2[2,]$start) {
-            pos1 <- gRNA2[1, ]$start
-            pos2 <- gRNA2[2, ]$end
+            pos1 <- gRNA2[1, ]$start+3
+            pos2 <- gRNA2[2, ]$end-3
             KO_length2 <- abs(pos1 - pos2) - 1
           }
           else{
-            pos1 <- gRNA2[1, ]$start
-            pos2 <- gRNA2[2, ]$end
+            pos1 <- gRNA2[1, ]$start+3
+            pos2 <- gRNA2[2, ]$end-3
             KO_length2 <- abs(pos1 - pos2) + 1
           }
         }
@@ -1082,13 +1082,13 @@ Get_gRNA2 <- function(KO_region) {
       }
       else{
         if (gRNA2[1,]$strand == "rev" & gRNA2[2,]$strand == "fw") {
-          pos1 <- gRNA2[1,]$start
-          pos2 <- gRNA2[2,]$end
+          pos1 <- gRNA2[1,]$start+3
+          pos2 <- gRNA2[2,]$end-3
           KO_length2 <- abs(pos1 - pos2- 1)
         }
         else{
-          pos1 <- gRNA2[1,]$end
-          pos2 <- gRNA2[2,]$start
+          pos1 <- gRNA2[1,]$end-3
+          pos2 <- gRNA2[2,]$start+3
           KO_length2 <- abs(pos1 - pos2+ 1) 
         }
       }
@@ -1096,18 +1096,35 @@ Get_gRNA2 <- function(KO_region) {
     #ÇÃ³ýµÄCDS
     if (exists("judge_2")) {
       KO_length_CDS2 <- KO_region[h,]$Exon_length
+      t_Exon_CDS3 <-
+        t_Exon_CDS[which(t_Exon_CDS$start >= min(gRNA2$start) &
+                           t_Exon_CDS$end <= max(gRNA2$end)),]
+      which_ko2 <- t_Exon_CDS3$Exon
     }
     else if (exists("judge3_2")) {
       KO_length_CDS2 <- KO_region3[h,]$Exon_length
+      t_Exon_CDS3 <-
+        t_Exon_CDS[which(t_Exon_CDS$start >= min(gRNA2$start) &
+                           t_Exon_CDS$end <= max(gRNA2$end)),]
+      which_ko2 <- t_Exon_CDS3$Exon
     }
     else if (exists("judge4_2")) {
       KO_length_CDS2 <- KO_region_all$Exon_length
+      t_Exon_CDS3 <-
+        t_Exon_CDS[which(t_Exon_CDS$start >= min(gRNA2$start) &
+                           t_Exon_CDS$end <= max(gRNA2$end)),]
+      which_ko2 <- t_Exon_CDS3$Exon
     }
     else{
       KO_length_CDS2 <- KO_length2
+      t_Exon_CDS3 <-
+        t_Exon_CDS[which(t_Exon_CDS$start <= max(gRNA2$end) &
+                           t_Exon_CDS$end >= min(gRNA2$start)),]
+      which_ko2 <- t_Exon_CDS3$Exon
     }
     gRNA2[1, 8] <- KO_length2
     gRNA2[2, 8] <- KO_length_CDS2
+    gRNA2[1, 9] <- which_ko2
     return(gRNA2)
   }
 }
