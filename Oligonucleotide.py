@@ -65,38 +65,38 @@ class AddClickNum(object):
     def quit(self):
         # time.sleep(3600)
         self.driver.quit()
-if __name__ == '__main__':
-
-    # todo 改成自己的chromdriver路径
-    chrome_driver = r'C:\Program Files (x86)\Google\Chrome\Application\chrome'
-    # todo 这里是谷歌访问助手的路径
-    google_zhushou = r'E:\谷歌访问助手_v2.3.0.crx'
-
-
-    add_click_num = AddClickNum(chrome_driver,google_zhushou)
-    # file_path = 'E:\workspace\workspace\project1\PCR1.csv'
-    # f_r = open(file_path, 'r')
-    # reader = csv.reader(f_r)
-    # first_line = next(reader)
-    # first_line.append('crispr_score')
-    # f_w = open(file_path, 'w', newline='')
-    # writer = csv.writer(f_w)
-    # writer.writerow(first_line)
-    # for row in reader:
-    #     print(row)
-        # keyword = row[0]
-        # writer.writerow(row)
-
-    s = time.time()
-
-    for i in ['ATG CAT GCG CTT AGC GTC TA','ATG CAT GCG CTT AGC GTC T','ATG CAT GCG CTT AGC GTC']:
-        add_click_num.search_key(keyword=i)
-        add_click_num.quit()
-
-    e = time.time()
-
-    t = e - s
-    print(t)
+# if __name__ == '__main__':
+#
+#     # todo 改成自己的chromdriver路径
+#     chrome_driver = r'C:\Program Files (x86)\Google\Chrome\Application\chrome'
+#     # todo 这里是谷歌访问助手的路径
+#     google_zhushou = r'E:\谷歌访问助手_v2.3.0.crx'
+#
+#
+#     add_click_num = AddClickNum(chrome_driver,google_zhushou)
+#     # file_path = 'E:\workspace\workspace\project1\PCR1.csv'
+#     # f_r = open(file_path, 'r')
+#     # reader = csv.reader(f_r)
+#     # first_line = next(reader)
+#     # first_line.append('crispr_score')
+#     # f_w = open(file_path, 'w', newline='')
+#     # writer = csv.writer(f_w)
+#     # writer.writerow(first_line)
+#     # for row in reader:
+#     #     print(row)
+#         # keyword = row[0]
+#         # writer.writerow(row)
+#
+#     s = time.time()
+#
+#     for i in ['ATG CAT GCG CTT AGC GTC TA','ATG CAT GCG CTT AGC GTC T','ATG CAT GCG CTT AGC GTC']:
+#         add_click_num.search_key(keyword=i)
+#         add_click_num.quit()
+#
+#     e = time.time()
+#
+#     t = e - s
+#     print(t)
 
 
 

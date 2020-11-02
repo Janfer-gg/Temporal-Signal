@@ -1,4 +1,4 @@
-#去掉连续4个碱基重复
+#去掉连续5个碱基重复
 del_dup <- function(PCR.table) {
   del<-numeric()
   for(i in 1:nrow(PCR.table)){
@@ -8,7 +8,7 @@ del_dup <- function(PCR.table) {
     for (j in 2:length(x)) {
       if (x[j] == x[j - 1]) {
         times <- times + 1
-        if (times == 3) {
+        if (times == 4) {
           del<-append(del,i)
           break
         }
@@ -18,8 +18,16 @@ del_dup <- function(PCR.table) {
       }
     }
   }
-  return(del)
+  {
+    if (length(del) != 0) {
+      del_result <- PCR.table[-del,]
+    }
+    else{
+      del_result <- PCR.table
+    }
+  }
 }
+
 
 del_dup2 <- function(PCR.table) {
   del<-numeric()
@@ -29,7 +37,7 @@ del_dup2 <- function(PCR.table) {
     for (j in 2:length(x)) {
       if (x[j] == x[j - 1]) {
         times <- times + 1
-        if (times == 3) {
+        if (times == 4) {
           del<-append(del,i)
           break
         }
@@ -39,5 +47,8 @@ del_dup2 <- function(PCR.table) {
       }
     }
   }
-  return(del)
+  if (length(del) != 0) {
+    PCR.table <- PCR.table[-del, ]
+  }
+  return(PCR.table)
 }
