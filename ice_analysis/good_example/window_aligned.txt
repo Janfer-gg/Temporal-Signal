@@ -1,0 +1,44 @@
+
+control                             -----------CATCCATATTTTGCTGTTATTGCTGCCATTGGGGACCGC
+experiment                          CCGTCTGGAGGTCTCCATATTTTGCTGTTATTGCTGCCATTGGGGACCGC
+
+control                             AGCAAGAAGGACCAGACCCCAGGCAAGGTAGGCCTGCTGTCACGTAAGGG
+experiment                          AGCAAGAAGGACCAGACCCCAGGCAAGGTAGGCCTGCTGTCACGTAAGGG
+
+control                             CATGCATTACAGAAAAAGAGTAGGCAGCCTTCACCCCCATCCTTCTTGAC
+experiment                          CATGCATTACAGAAAAAGAGTAGGCAGCCTTCACCCCCATCCTTCTTGAC
+
+control                             CTCTTTCAG-----------------------------------------
+experiment                          CTCTTTCAGGGCACCTTGGAAGATCAAATCATCCAAGCCAACCCCGCTCT
+
+control                             --------------------------------------------------
+experiment                          GGAGGCCTTTGGCAATGCCAAGACAGTTCGGAATGATAACTCCTCCCGAT
+
+control                             --------------------------------------------------
+experiment                          TTGTGAGTGATACCCCACCTTGAACTCGGGACTTGGGCTGGTTGAGGGAT
+
+control                             --------------------------------------------------
+experiment                          GGCCTCTAATGGGAGCCTTTCCCAGGCTCATTGCTACTCTCTTCCTTCCA
+
+control                             --------------------------------------------------
+experiment                          TCCATCGCTTCAGGGGAAATTCATTCGAATCCATTTTGGAGCAACAGGAA
+
+control                             --------------------------------------------------
+experiment                          AGTTGGCATCTGCAGATATAGAGACCTGTAAGTTCCACGAATTTGCCGGG
+
+control                             --------------------------------------------------
+experiment                          GCTCATTTAGGCCGAGCCCATACTGGTTGTACAGCCTCGTCTCAATCTCT
+
+control                             --------------------------------------------------
+experiment                          TCCCGCAGTATGCATATCTTTCTGTCTCTACGTCAGCCTGAGGCTTTCTC
+
+control                             --------------------------------------------------
+experiment                          TGGCTTTTCCTCTGTCTGCTATCAGTGCATGATTCTTTGGGGGGAGGGGG
+
+control                             --------------------------------------------------
+experiment                          TTTCTCTCTAAGATGCTTTCTTTCCTTCTGGGTCTCTGCCTCCATTCTTC
+
+control                             ----------------------------------------
+experiment                          ATGTGTTGCCCCTGCACACATGCACTGTCTTTTCCCCTCA
+
+

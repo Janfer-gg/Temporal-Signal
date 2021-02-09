@@ -1,0 +1,60 @@
+    scaffold_type = "表达慢病毒载体单gRNA"
+    gRNA_name1 = "Sample[gRNA1]"
+    gRNA_seq1 = "TTTTTTTTTTTTTTTTTTTTT"
+    gRNA_name2 = "Sample[gRNA2]"
+    gRNA_seq2 = "AAAAAAAAAAAAAAAAAAA"
+    protein_type = ''
+    protein_name = ''
+    marker_type = 'Dual Reporters'
+    marker_name = 'EGFP:T2A:Puro'
+
+
+    scaffold_type = "表达慢病毒载体双gRNA"
+    gRNA_name1 = "Sample[gRNA1]"
+    gRNA_seq1 = "TTTTTTTTTTTTTTTTTTTTT"
+    gRNA_name2 = "Sample[gRNA2]"
+    gRNA_seq2 = "AAAAAAAAAAAAAAAAAAA"
+    protein_type = ''
+    protein_name = ''
+    marker_type = 'Dual Reporters'
+    marker_name = 'EGFP:T2A:Puro'
+
+    scaffold_type = "CRISPR慢病毒载体单gRNA"
+    gRNA_name1 = "Sample[gRNA1]"
+    gRNA_seq1 = "TTTTTTTTTTTTTTTTTTTTT"
+    gRNA_name2 = "Sample[gRNA2]"
+    gRNA_seq2 = "AAAAAAAAAAAAAAAAAAAA"
+    protein_type = 'Cas Proteins'
+    protein_name = 'hCas9:T2A:Puro'
+    marker_type = ''
+    marker_name = ''
+
+    scaffold_type = "CRISPR慢病毒载体双gRNA"
+    gRNA_name1 = "Sample[gRNA1]"
+    gRNA_seq1 = "TTTTTTTTTTTTTTTTTTTTT"
+    gRNA_name2 = "Sample[gRNA2]"
+    gRNA_seq2 = "AAAAAAAAAAAAAAAAAAAA"
+    protein_type = 'Cas Proteins'
+    protein_name = 'hCas9:T2A:Puro'
+    marker_type = ''
+    marker_name = ''
+
+    scaffold_type = "CRISPR载体单gRNA"
+    gRNA_name1 = "Sample[gRNA1]"
+    gRNA_seq1 = "TTTTTTTTTTTTTTTTTTTTT"
+    gRNA_name2 = "Sample[gRNA2]"
+    gRNA_seq2 = "AAAAAAAAAAAAAAAAAAAA"
+    protein_type = 'Cas Proteins'
+    protein_name = 'hCas9'
+    marker_type = 'Dual Reporters'
+    marker_name = 'EGFP:P2A:Puro'
+
+    scaffold_type = "CRISPR载体双gRNA"
+    gRNA_name1 = "Sample[gRNA1]"
+    gRNA_seq1 = "TTTTTTTTTTTTTTTTTTTTT"
+    gRNA_name2 = "Sample[gRNA2]"
+    gRNA_seq2 = "AAAAAAAAAAAAAAAAAAAA"
+    protein_type = 'Cas Proteins'
+    protein_name = 'hCas9'
+    marker_type = 'Dual Reporters'
+    marker_name = 'EGFP:P2A:Puro'

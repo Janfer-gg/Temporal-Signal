@@ -1,0 +1,48 @@
+
+control                             GGGTTCAAGAGGTTCATCCATATTTTGCTGTTATTGCTGCCATTGGGGAC
+donor                               --------------------------------------------------
+
+control                             CGCAGCAAGAAGGACCAGACCCCAGGCAAGGTAGGCCTGCTGTCACGTAA
+donor                               --------------------------------------------------
+
+control                             GGGCATGCATTACAGAAAAAGAGTAGGCAGCCTTCACCCCCATCCTTCTT
+donor                               --------------------------------------------------
+
+control                             GACCTCTTTCAGGGCACCTTGGAAGATCAAATCATCCAAGCCAACCCCGC
+donor                               ------------GGCACCTTGGAAGATCAAATCATCCAAGCCAACCCCGC
+
+control                             TCTGGAGGCCTTTGGCAATGCCAAGACAGTTCGGAATGATAACTCCTCCC
+donor                               TCTGGAGGCCTTTGGCAATGCCCAAACAGTTCGGAATGATAACTCCTCCC
+
+control                             GATTTGTGAGTGATACCCCACCTTGAACTCGGGACTTGGGCTGGTTGAGG
+donor                               GATTTGTGAGTGATACCCCACCTTGAACTCGGGAC---------------
+
+control                             GATGGCCTCAAATGGGAGCCTTTCCCAGGCTCATTGCTACTCTCTTCCTT
+donor                               --------------------------------------------------
+
+control                             CCATCCATCGCTTCAGGGGAAATTCATTCGAATCCATTTTGGAGCAACAG
+donor                               --------------------------------------------------
+
+control                             GAAAGTTGGCATCTGCAGATATAGAGACCTGTAAGTTCCACGAATTTGCC
+donor                               --------------------------------------------------
+
+control                             GGGGCTCATTTAGGCCGAGCCCATACTGGTTGTACAGCCTCGTCTCAATC
+donor                               --------------------------------------------------
+
+control                             TCTTCCCGCAGTATGCATATCTTTCTGTCTCTACGTCAGCCTGAGGCTTT
+donor                               --------------------------------------------------
+
+control                             CTCTGGCTTTTCCTCTGTCTGCTATCAGTGCATGATTCTTTGGGGGGAGG
+donor                               --------------------------------------------------
+
+control                             GGGTTTCTCTCTAAGATGCTTTCTTTCCTTCTGGGTCTCTGCCTCCATTC
+donor                               --------------------------------------------------
+
+control                             TTCATGTGTTGCCCCTGCAGCCATGCACTGCTCTTTTTCTCCCCTCTCAT
+donor                               --------------------------------------------------
+
+control                             T
+donor                               -
+
+
+

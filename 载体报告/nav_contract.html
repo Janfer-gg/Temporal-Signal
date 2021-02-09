@@ -1,0 +1,264 @@
+    <!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+        @page {
+            size: A3;
+            margin: 0 0.44in 0.2in 0.44in;
+        }
+
+        @page {
+            @top-center {
+                content: element(pageHeader);
+
+            }
+            margin: 20in 2in 2in 2in;
+
+        }
+
+        @media print {
+            #divHeader {
+                position: running(pageHeader);
+            }
+        }
+
+        @page {
+            @bottom-center {
+                content: element(pageFooter);
+
+            }
+            margin: 1in 0.3in 1.1in 0.2in;
+
+        }
+
+        @media print {
+            #divbottom {
+                position: running(pageFooter);
+            }
+        }
+
+        .tit_red_block {
+            border-left: #D01027 8px solid;
+            line-height: 22px
+        }
+
+        .tit_red_block_inner {
+            font-size: 22px;
+            padding: 0 24px 0 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .site_txt {
+            margin-top: 12px
+        }
+        .phara_txt{
+            margin-top: 32px;
+        }
+        .kind_table tr{
+            height: 40px;
+        }
+         .kind_table tr:nth-child(2n){
+             background-color: #dddddd;
+        }
+          .kind_table tr:nth-child(2n+1){
+             background-color: #f1f1f1;
+        }
+          .kind_table{
+              width: 100%;
+          }
+        .kind_table tr td:nth-child(1){
+            width: 20%;
+    padding: 0 12px;
+    font-weight: 600;
+        }
+        .kind_table tr td:nth-child(2){
+           width: 80%;
+    padding: 0 12px;
+        }
+        .grna_list{
+            margin: 0 auto;
+            width: 1200px;
+        }
+       .tr_line>span {
+        width: 50px;
+    display: block;
+    padding: 2px 0px;
+    height: 10px;
+    color: #aaa;
+    float: left;
+    text-align: right;
+
+}
+                  .tr_line{height: 22px}
+
+        .tr_line>div{width: 1100px;float: left;    margin-left: 50px;}
+         .tr_line>div>div{
+            margin-left: -17px;
+             width:100px;
+             font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+             font-weight: 400;
+             font-size: 13px;
+        }
+         .tr_line>div>div>span{
+
+    text-align: center;
+        }
+        .mid_box{
+            margin: 0 auto;
+        }
+        .left-seq{
+            vertical-align: top;
+
+        }
+.left-seq>div {
+    height: 23.5px;
+    font-size: 13px;
+}
+        #gRNA_positions {
+    text-align: center;
+    height: 149px;
+    position: relative;
+    overflow: hidden;
+    border: #666666 dashed 1px;
+    margin-top: 15px;
+}
+
+        #gRNA_positions img {
+    text-align: center;
+    width: 69%;
+    left: 15%;
+    position: absolute;
+    top: -165px;
+}
+
+    </style>
+</head>
+
+<body>
+<div id="divHeader">
+    <div style="padding-bottom: 20px;margin-left: -20px;width: 80%;margin-top: 25px"><img src="head_pdf.png" style="width: 1060px">
+    </div>
+</div>
+
+<div id="divbottom">
+    <div style="padding-bottom: 40px;margin-left: -20px;width: 80%;"><img src="foot_pdf.jpg" style="width: 1060px">
+    </div>
+</div>
+<div style="width: 90%;margin: 0 auto ;">
+    <div style="text-align: center;font-weight: 600"><h1>载体产品说明书</h1></div>
+    <div class="tit_red_block phara_txt"><span class="tit_red_block_inner">应用类型</span></div>
+    <div class="site_txt">哺乳动物基因编辑</div>
+    <div class="tit_red_block phara_txt"><span class="tit_red_block_inner">载体基本信息</span></div>
+    <div>
+        <table class="kind_table site_txt">
+            <tr>
+                <td>载体类型：</td>
+                <td>基因编辑普通质粒</td>
+            </tr>
+            <tr>
+                <td>载体名称：</td>
+                <td>{{ plasmid_name }}</td>
+            </tr>
+            <tr>
+                <td>载体大小：</td>
+                <td>10689 bp/条</td>
+            </tr>
+            <tr>
+                <td>基因名称：</td>
+                <td>{{ gene_name }}</td>
+            </tr>
+            <tr>
+                <td>基因ID：</td>
+                <td>{{ gene_id }}</td>
+            </tr>
+            <tr>
+                <td>产品规格：</td>
+                <td>1ml/管</td>
+            </tr>
+            <tr>
+                <td>筛选标记：</td>
+                <td>EGFP, Puro</td>
+            </tr>
+            <tr>
+                <td>载体抗性：</td>
+                <td>Ampicillin</td>
+            </tr>
+            <tr>
+                <td>酶切鉴定位点：</td>
+                <td>ApaLi + Bamhi（497,1246,6617,2329）</td>
+            </tr>
+            <tr>
+                <td>载体货号（序列号）：</td>
+                <td>
+                 {% for item,seqq in item_seq_list %}
+                    <div style="line-height: 32px">{{ item }}  （{{ seqq }}）</div>
+                    {% endfor %}
+                </td>
+            </tr>
+
+
+        </table>
+    </div>
+    <div class="tit_red_block phara_txt"><span class="tit_red_block_inner">载体图谱</span></div>
+    <div style="margin: 0 auto;width: 100%;">
+        <img src="vector.svg" style="width: 93%">
+    </div>
+
+    <div class="tit_red_block phara_txt"><span class="tit_red_block_inner">使用说明</span></div>
+
+    <div class="site_txt" style="margin-left: 12px">
+        <p style="color: #D01027" class="site_txt">储存条件</p>
+
+        <p>载体的宿主（无特殊情况）为Stbl3菌株，可直接用于质粒的扩增和获取。</p>
+        <p><b>甘油菌：</b>收到甘油菌后，直接放置在-80℃冰箱中长期保存，也可置于4℃保存1~2周。建议复制一份甘油菌做备份。</p>
+        <p><b>液态质粒：</b>收到质粒后，瞬时离心，使质粒置于管底，可直接使用或放置在-20℃保存。</p>
+    </div>
+
+    <div class="tit_red_block phara_txt"><span class="tit_red_block_inner">gRNA敲除区域</span></div>
+
+<div class="site_txt" id="gRNA_positions" style="margin-left: 12px">
+        <img src="https://en.rc-crispr.com/gene_img/{{ gene_id }}/gRNA_position_large2.png">
+    </div>
+
+    <div class="tit_red_block phara_txt"><span class="tit_red_block_inner">载体序列</span></div>
+
+<div class="site_txt" style="margin-left: 12px">
+        <p style="color: #D01027" class="site_txt">注释：下方序列中的 N 字母段为gRNA序列位置</p>
+    </div>
+
+<div  class="grna_list" >
+        {% spaceless %}
+{% for chunk_grna_list,ri in zip_chunk_all_grna_list %}
+<div class="tr_line">
+    <span style="font-size: 12px" style="display: inline-block">{{ ri}}  </span>
+<div>
+{% for grna_l in chunk_grna_list %}
+            <div style="vertical-align: middle;display: inline-block">
+    {% for g_l in grna_l %}
+        {% for glK,glV in g_l.items %}
+            {% if glK == 'N' %}
+              <span style="border-bottom: 2px {{ glV }} solid;vertical-align: middle;display: inline-block;color: #D01027;">{{ glK }}</span>
+          {% else %}
+            <span style="border-bottom: 2px {{ glV }} solid;vertical-align: middle;display: inline-block">{{ glK }}</span>
+            {% endif %}
+            {% endfor %}
+        {% endfor %}
+        </div>
+{% endfor %}
+</div>
+</div>
+    <div style="clear: both"></div>
+{% endfor %}
+        {% endspaceless %}
+
+</div>
+
+</div>
+
+
+
+</body>
+
+</html>
